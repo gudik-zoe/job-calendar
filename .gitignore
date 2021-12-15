@@ -1,0 +1,43 @@
+/.metadata/
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+/.mvn*
+/mvnw*
+/src/main/java/com/scai/bundleInternal/soap/schemas/*
+/src/main/resources
+
+/logs/*
+/src/main/java/com/gigroup/jobpost/bundlepublic/soap/infojobsspain/schemas/*
+src/main/java/META-INF/sun-jaxb.episode
