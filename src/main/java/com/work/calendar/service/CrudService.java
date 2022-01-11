@@ -1,6 +1,6 @@
 package com.work.calendar.service;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -22,6 +22,11 @@ public abstract class CrudService<T> {
 		} else {
 			return null;
 		}
+
+	}
+
+	public List<T> getEntities() {
+		return getRepository().findAll();
 
 	}
 

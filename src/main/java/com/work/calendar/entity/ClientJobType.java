@@ -27,6 +27,12 @@ public class ClientJobType {
 
 	private int hoursNumber;
 
+	private String note;
+
+	public ClientJobType() {
+
+	}
+
 	public ClientJobType(Client client, JobType jobtype, Date date, int hoursNumber) {
 		this.client = client;
 		this.jobtype = jobtype;
@@ -68,6 +74,14 @@ public class ClientJobType {
 
 	public int getHoursNumber() {
 		return hoursNumber;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public void setHoursNumber(int hoursNumber) {

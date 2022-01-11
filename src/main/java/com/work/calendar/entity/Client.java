@@ -23,8 +23,9 @@ public class Client {
 
 	private Date timeStamp;
 
-	@OneToMany(mappedBy = "client")
-	List<ClientJobType> clientJobType;
+	public Client() {
+
+	}
 
 	public Client(String fullName, Date timeStamp) {
 		this.fullName = fullName;

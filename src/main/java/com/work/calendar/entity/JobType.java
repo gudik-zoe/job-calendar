@@ -23,13 +23,13 @@ public class JobType {
 
 	private Date timeStamp;
 
-	@OneToMany(mappedBy = "jobtype")
-	List<ClientJobType> clientJobTypes;
+	public JobType() {
 
-	public JobType(String description, Date timeStamp, List<ClientJobType> clientJobTypes) {
+	}
+
+	public JobType(String description, Date timeStamp) {
 		this.description = description;
 		this.timeStamp = timeStamp;
-		this.clientJobTypes = clientJobTypes;
 	}
 
 	public Long getId() {
@@ -55,6 +55,5 @@ public class JobType {
 	public void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-
 
 }
