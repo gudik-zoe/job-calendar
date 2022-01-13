@@ -41,3 +41,6 @@ build/
 /logs/*
 /src/main/java/com/gigroup/jobpost/bundlepublic/soap/infojobsspain/schemas/*
 src/main/java/META-INF/sun-jaxb.episode
+/Dockerfile
+/env
+

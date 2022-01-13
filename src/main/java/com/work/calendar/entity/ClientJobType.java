@@ -29,15 +29,18 @@ public class ClientJobType {
 
 	private String note;
 
+	private String position;
+
 	public ClientJobType() {
 
 	}
 
-	public ClientJobType(Client client, JobType jobtype, Date date, int hoursNumber) {
+	public ClientJobType(Client client, JobType jobtype, Date date, int hoursNumber, String position) {
 		this.client = client;
 		this.jobtype = jobtype;
 		this.date = date;
 		this.hoursNumber = hoursNumber;
+		this.position = position;
 	}
 
 	public Long getId() {
@@ -46,6 +49,14 @@ public class ClientJobType {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}
 
 	public Client getClient() {

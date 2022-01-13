@@ -25,7 +25,7 @@ public class ClientService extends CrudService<Client> {
 
 	@Override
 	public boolean validateEntity(Client entity) {
-		return !entity.getFullName().isBlank() ? true : false;
+		return (entity.getFullName().length() > 3) ? true : false;
 
 	}
 
