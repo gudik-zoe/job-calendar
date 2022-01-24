@@ -2,6 +2,7 @@ package com.work.calendar.entity;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,9 +11,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class ClientJobType {
+public class ClientJob {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;
 
 	@ManyToOne
@@ -20,8 +22,8 @@ public class ClientJobType {
 	private Client client;
 
 	@ManyToOne
-	@JoinColumn(name = "job_type_id")
-	private JobType jobtype;
+	@JoinColumn(name = "job_id")
+	private Job jobtype;
 
 	private Date date;
 
@@ -31,11 +33,11 @@ public class ClientJobType {
 
 	private String position;
 
-	public ClientJobType() {
+	public ClientJob() {
 
 	}
 
-	public ClientJobType(Client client, JobType jobtype, Date date, int hoursNumber, String position) {
+	public ClientJob(Client client, Job jobtype, Date date, int hoursNumber, String position) {
 		this.client = client;
 		this.jobtype = jobtype;
 		this.date = date;
@@ -67,11 +69,11 @@ public class ClientJobType {
 		this.client = client;
 	}
 
-	public JobType getJobtype() {
+	public Job getJobtype() {
 		return jobtype;
 	}
 
-	public void setJobtype(JobType jobtype) {
+	public void setJobtype(Job jobtype) {
 		this.jobtype = jobtype;
 	}
 

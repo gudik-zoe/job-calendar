@@ -4,22 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import com.work.calendar.entity.ClientJobType;
+import com.work.calendar.entity.ClientJob;
 import com.work.calendar.repository.ClientJobTypeRepository;
 @Service
-public class ClientJobTypeService extends CrudService<ClientJobType> {
+public class ClientJobService extends CrudService<ClientJob> {
 	
 	
 	@Autowired
 	private ClientJobTypeRepository ClientJobTypeRepository;
 
 	@Override
-	public JpaRepository<ClientJobType, Long> getRepository() {
+	public JpaRepository<ClientJob, Long> getRepository() {
 		return ClientJobTypeRepository;
 	}
 
 	@Override
-	public boolean validateEntity(ClientJobType entity) {
+	public boolean validateEntity(ClientJob entity) {
 		return true;
 	}
 

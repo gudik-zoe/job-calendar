@@ -12,22 +12,22 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "job_type")
-public class JobType {
+@Table(name = "job")
+public class Job {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "job_type_id")
+	@Column(name = "job_id")
 	private Long id;
 
 	private String description;
 
 	private Date timeStamp;
 
-	public JobType() {
+	public Job() {
 
 	}
 
-	public JobType(String description, Date timeStamp) {
+	public Job(String description, Date timeStamp) {
 		this.description = description;
 		this.timeStamp = timeStamp;
 	}
