@@ -1,5 +1,6 @@
 package com.work.calendar.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ public class ClientService {
 
 	public Client addClient(Client client) {
 		if (validateEntity(client)) {
+			client.setTimeStamp(new Date());
+			log.info("setting creation date in service");
 			return clientRepository.save(client);
 		}
 		log.error("client not valid");

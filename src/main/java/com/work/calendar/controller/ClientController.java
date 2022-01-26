@@ -43,7 +43,6 @@ public class ClientController {
 	@PostMapping("/")
 	public ResponseEntity<?> addClient(@RequestBody Client theClient) {
 		try {
-			theClient.setTimeStamp(new Date());
 			Client client = clientService.addClient(theClient);
 			return ResponseEntity.ok().body(client);
 		} catch (Exception e) {
