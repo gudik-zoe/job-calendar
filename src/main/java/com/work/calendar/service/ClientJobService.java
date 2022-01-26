@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.work.calendar.entity.ClientJob;
 import com.work.calendar.repository.ClientJobTypeRepository;
+
+import jdk.internal.org.jline.utils.Log;
 @Service
 public class ClientJobService extends CrudService<ClientJob> {
 	
@@ -21,6 +23,11 @@ public class ClientJobService extends CrudService<ClientJob> {
 	@Override
 	public boolean validateEntity(ClientJob entity) {
 		return true;
+	}
+	
+	public ClientJob addClientJob() {
+		Log.info("just added a method to check from git");
+		return null;
 	}
 
 }
