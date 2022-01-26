@@ -50,18 +50,15 @@ public class ClientController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public void deleteClient(@PathVariable Long id) {
 		try {
 			System.out.println("in controller " + id);
-			clientService.deleteClient(id);			
+			clientService.deleteClient(id);
 		} catch (Exception e) {
 			log.error("EXCEPTION on deleteClient: ", e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
-	
-	
 
 }
