@@ -3,6 +3,8 @@ package com.work.calendar.service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +16,11 @@ import com.work.calendar.entity.Job;
 import com.work.calendar.repository.JobRepository;
 
 @Service
-public class JobService {
+public class JobService  extends CrudService<Job>{
 
 	private Logger log = LoggerFactory.getLogger(JobService.class);
 	@Autowired
-	private JobRepository jobTypeRepository;
+	private JobRepository jobRepository;
 
 	public boolean validateEntity(Job entity) {
 		return !entity.getDescription().trim().isEmpty() ? true : false;
@@ -26,9 +28,9 @@ public class JobService {
 	}
 
 	public void deleteJob(Long id) {
-		Optional<Job> jt = jobTypeRepository.findById(id);
+		Optional<Job> jt = jobRepository.findById(id);
 		if (jt.isPresent()) {
-			jobTypeRepository.delete(jt.get());
+			jobRepository.delete(jt.get());
 		} else {
 			log.error("job type doesn't exist");
 		}
@@ -37,7 +39,7 @@ public class JobService {
 
 	public Job addJobType(Job jobType) {
 		if (validateEntity(jobType)) {
-			return jobTypeRepository.save(jobType);
+			return jobRepository.save(jobType);
 		} else {
 			log.info("job type is not valid");
 			return null;
@@ -45,7 +47,21 @@ public class JobService {
 	}
 
 	public List<Job> getJobTypes() {
-		return jobTypeRepository.findAll();
+		return jobRepository.findAll();
 	}
+
+	@Override
+	public JpaRepository<Job, Long> getRepository() {
+		return jobRepository;
+	}
+	
+	public Job getJobById(Long id) throws AccountNotFoundException {
+		if(jobRepository.findById(id).get() != null) {
+			return jobRepository.findById(id).get();
+		}else {
+			throw new AccountNotFoundException("no client account with the id " + id);
+		}
+	}
+
 
 }

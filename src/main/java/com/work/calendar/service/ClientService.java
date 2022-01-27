@@ -3,6 +3,8 @@ package com.work.calendar.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import com.work.calendar.entity.Client;
 import com.work.calendar.repository.ClientRepository;
 
 @Service
-public class ClientService {
+public class ClientService extends CrudService<Client> {
 
 	private Logger log = LoggerFactory.getLogger(ClientService.class);
 	@Autowired
@@ -44,4 +46,16 @@ public class ClientService {
 		return clientRepository.findAll();
 	}
 
+	public Client getClientById(Long id) throws AccountNotFoundException {
+		if(clientRepository.findById(id).get() != null) {
+			return clientRepository.findById(id).get();
+		}else {
+			throw new AccountNotFoundException("no client account with the id " + id);
+		}
+	}
+
+	@Override
+	public JpaRepository<Client, Long> getRepository() {
+		return clientRepository;
+	}
 }

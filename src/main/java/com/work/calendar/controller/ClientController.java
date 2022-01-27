@@ -39,6 +39,16 @@ public class ClientController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getClientById(@PathVariable Long id) {
+		try {
+			return ResponseEntity.ok().body(clientService.getClientById(id));
+		} catch (Exception e) {
+			log.error("EXCEPTION on getClients: ", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
+		}
+	}
 
 	@PostMapping("/")
 	public ResponseEntity<?> addClient(@RequestBody Client theClient) {

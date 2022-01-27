@@ -1,9 +1,11 @@
 package com.work.calendar.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,17 +13,22 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class ClientJob {
+public class Business implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "client_id")
 	private Client client;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "job_id")
 	private Job jobtype;
 
@@ -33,11 +40,11 @@ public class ClientJob {
 
 	private String position;
 
-	public ClientJob() {
+	public Business() {
 
 	}
 
-	public ClientJob(Client client, Job jobtype, Date date, int hoursNumber, String position) {
+	public Business(Client client, Job jobtype, Date date, int hoursNumber, String position) {
 		this.client = client;
 		this.jobtype = jobtype;
 		this.date = date;
