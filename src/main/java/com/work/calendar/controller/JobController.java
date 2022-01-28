@@ -40,7 +40,7 @@ public class JobController {
 		}
 	}
 
-	@PostMapping("/")
+	@PostMapping()
 	public ResponseEntity<?> addJobType(@RequestBody Job theJobType) {
 		try {
 			theJobType.setTimeStamp(new Date());
@@ -51,13 +51,13 @@ public class JobController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
-	
+
 	@DeleteMapping("/{id}")
 	public void deleteJob(@PathVariable Long id) {
-		
+
 		try {
 			log.info("this is enter the delete job controller " + id);
-			jobTypeService.deleteJob(id);			
+			jobTypeService.deleteJob(id);
 		} catch (Exception e) {
 			log.error("EXCEPTION on delete jobType: ", e.getMessage());
 		}

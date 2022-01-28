@@ -1,41 +1,36 @@
 package com.work.calendar.dto;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class BusinessSummaryDTO {
 
-	private String clientName;
+	private double totalHours;
 
-	List<BusinessDetailsDTO> businessDetails = new ArrayList<>();
+	private List<ClientBusinessSummaryDTO> clientBusinessSummaryDTO;
 
-	private int totalHrs;
+	public BusinessSummaryDTO() {
 
-	public String getClientName() {
-		return clientName;
 	}
 
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
+	public BusinessSummaryDTO(double totalHours, List<ClientBusinessSummaryDTO> clientBusinessSummaryDTO) {
+		this.totalHours = totalHours;
+		this.clientBusinessSummaryDTO = clientBusinessSummaryDTO;
 	}
 
-
-
-	public List<BusinessDetailsDTO> getBusinessDetails() {
-		return businessDetails;
+	public double getTotalHours() {
+		return totalHours;
 	}
 
-	public void setBusinessDetails(List<BusinessDetailsDTO> businessDetails) {
-		this.businessDetails = businessDetails;
+	public void setTotalHours(double totalHours) {
+		this.totalHours = totalHours;
 	}
 
-	public int getTotalHrs() {
-		return totalHrs;
+	public List<ClientBusinessSummaryDTO> getClientBusinessSummaryDTO() {
+		return clientBusinessSummaryDTO;
 	}
 
-	public void setTotalHrs(int totalHrs) {
-		this.totalHrs = totalHrs;
+	public void setClientBusinessSummaryDTO(List<ClientBusinessSummaryDTO> clientBusinessSummaryDTO) {
+		this.clientBusinessSummaryDTO = clientBusinessSummaryDTO;
 	}
 
 }

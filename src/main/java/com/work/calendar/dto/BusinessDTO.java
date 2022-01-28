@@ -9,7 +9,8 @@ public class BusinessDTO {
 	private Long clientId;
 	private Long jobId;
 	private String position;
-	private int timeSpentInHrs;
+	private Date startTime;
+	private Date endTime;
 	private Date date;
 
 	public String getNote() {
@@ -44,10 +45,6 @@ public class BusinessDTO {
 		this.position = position;
 	}
 
-	public int getTimeSpentInHrs() {
-		return timeSpentInHrs;
-	}
-
 	public Date getDate() {
 		return date;
 	}
@@ -56,8 +53,20 @@ public class BusinessDTO {
 		this.date = date;
 	}
 
-	public void setTimeSpentInHrs(int timeSpentInHrs) {
-		this.timeSpentInHrs = timeSpentInHrs;
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 
 }

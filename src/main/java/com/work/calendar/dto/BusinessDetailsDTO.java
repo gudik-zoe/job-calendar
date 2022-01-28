@@ -5,10 +5,10 @@ import java.util.Date;
 public class BusinessDetailsDTO {
 
 	private String jobDescription;
-	private int jobDuration;
+	private double jobDuration;
 	private Date date;
 
-	public BusinessDetailsDTO(String jobDescription, int jobDuration, Date date) {
+	public BusinessDetailsDTO(String jobDescription, double jobDuration, Date date) {
 		this.jobDescription = jobDescription;
 		this.jobDuration = jobDuration;
 		this.date = date;
@@ -22,11 +22,11 @@ public class BusinessDetailsDTO {
 		this.jobDescription = jobDescription;
 	}
 
-	public int getJobDuration() {
+	public double getJobDuration() {
 		return jobDuration;
 	}
 
-	public void setJobDuration(int jobDuration) {
+	public void setJobDuration(double jobDuration) {
 		this.jobDuration = jobDuration;
 	}
 

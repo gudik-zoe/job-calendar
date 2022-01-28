@@ -1,8 +1,10 @@
 package com.work.calendar.entity;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,8 +13,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "business")
 public class Business implements Serializable {
 	/**
 	 * 
@@ -24,17 +28,21 @@ public class Business implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "client_id")
 	private Client client;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "job_id")
-	private Job jobtype;
+	private Job job;
 
 	private Date date;
 
-	private int hoursNumber;
+	private Date startTime;
+
+	private Date endTime;
+
+	private double totalHours;
 
 	private String note;
 
@@ -44,11 +52,15 @@ public class Business implements Serializable {
 
 	}
 
-	public Business(Client client, Job jobtype, Date date, int hoursNumber, String position) {
+	public Business(Client client, Job job, Date date, Date startTime, Date endTime, double totalHours, String note,
+			String position) {
 		this.client = client;
-		this.jobtype = jobtype;
+		this.job = job;
 		this.date = date;
-		this.hoursNumber = hoursNumber;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.totalHours = totalHours;
+		this.note = note;
 		this.position = position;
 	}
 
@@ -76,12 +88,12 @@ public class Business implements Serializable {
 		this.client = client;
 	}
 
-	public Job getJobtype() {
-		return jobtype;
+	public Job getJob() {
+		return job;
 	}
 
-	public void setJobtype(Job jobtype) {
-		this.jobtype = jobtype;
+	public void setJobtype(Job job) {
+		this.job = job;
 	}
 
 	public Date getDate() {
@@ -92,10 +104,6 @@ public class Business implements Serializable {
 		this.date = date;
 	}
 
-	public int getHoursNumber() {
-		return hoursNumber;
-	}
-
 	public String getNote() {
 		return note;
 	}
@@ -104,8 +112,28 @@ public class Business implements Serializable {
 		this.note = note;
 	}
 
-	public void setHoursNumber(int hoursNumber) {
-		this.hoursNumber = hoursNumber;
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public double getTotalHours() {
+		return totalHours;
+	}
+
+	public void setTotalHours(double totalHours) {
+		this.totalHours = totalHours;
 	}
 
 }

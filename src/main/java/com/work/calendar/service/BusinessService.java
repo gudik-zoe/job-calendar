@@ -1,9 +1,8 @@
 package com.work.calendar.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.security.auth.login.AccountNotFoundException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -14,10 +13,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.work.calendar.dto.BusinessDTO;
-import com.work.calendar.dto.ClientJobFilterDTO;
-import com.work.calendar.dto.BusinessSummaryDTO;
 import com.work.calendar.dto.BusinessDetailsDTO;
+import com.work.calendar.dto.BusinessSummaryDTO;
+import com.work.calendar.dto.ClientBusinessSummaryDTO;
+import com.work.calendar.dto.ClientJobFilterDTO;
 import com.work.calendar.entity.Business;
+import com.work.calendar.entity.Client;
 import com.work.calendar.repository.BusinessRepository;
 import com.work.calendar.repository.ClientRepository;
 import com.work.calendar.repository.JobRepository;
@@ -44,23 +45,37 @@ public class BusinessService extends CrudService<Business> {
 	@Autowired
 	private JobService jobService;
 
-	public Business addEntity(BusinessDTO clientJobDTO) throws AccountNotFoundException {
+	public Business addEntity(BusinessDTO clientJobDTO) throws Exception {
 
 		Business cj = new Business();
+//		log.info("time difference " +((clientJobDTO.getEndTime().getTime() - clientJobDTO.getStartTime().getTime()) / (1000 * 60 * 60))
+//				+ "hours");
 		cj.setClient(clientService.getClientById(clientJobDTO.getClientId()));
 		cj.setJobtype(jobService.getJobById(clientJobDTO.getJobId()));
-		cj.setHoursNumber(clientJobDTO.getTimeSpentInHrs());
+		cj.setTotalHours(getTimedifference(clientJobDTO.getEndTime(), clientJobDTO.getStartTime()));
 		cj.setNote(clientJobDTO.getNote());
+		cj.setStartTime(clientJobDTO.getStartTime());
+		cj.setEndTime(clientJobDTO.getEndTime());
 		cj.setPosition(clientJobDTO.getPosition());
 		cj.setDate(clientJobDTO.getDate());
 		return clientJobRepository.save(cj);
 
 	}
 
+	private double getTimedifference(Date endTime, Date startTime) throws Exception {
+		double difference;
+		if (endTime.getTime() > startTime.getTime()) {
+			difference = Math.floor(endTime.getTime() - startTime.getTime()) / (1000 * 3600);
+			log.info("difference " + difference);
+			return difference;
+		}
+		throw new Exception("dates are not valid");
+	}
+
 	private boolean validateDto(BusinessDTO clientJobDTO) {
 
 		if (getEntityById(clientJobDTO.getClientId()) != null && getEntityById(clientJobDTO.getJobId()) != null
-				&& clientJobDTO.getTimeSpentInHrs() != 0) {
+				&& clientJobDTO.getStartTime() != null && clientJobDTO.getEndTime() != null) {
 			return true;
 		}
 
@@ -78,45 +93,50 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public BusinessSummaryDTO getClientJobSummaryForClientId(Long id) {
-		List<Business> summary = clientJobRepository.getClientJobSummaryForClientId(id);
-		if (!CollectionUtils.isEmpty(summary)) {
-			BusinessSummaryDTO cjs = new BusinessSummaryDTO();
-			cjs.setClientName(summary.get(0).getClient().getFullName());
-			for (Business clientJob : summary) {
-				cjs.setTotalHrs(cjs.getTotalHrs() + clientJob.getHoursNumber());
-				cjs.getBusinessDetails().add(new BusinessDetailsDTO(clientJob.getJobtype().getDescription(),
-						clientJob.getHoursNumber(), clientJob.getDate()));
+	public BusinessSummaryDTO getBusinessSummary(ClientJobFilterDTO filter) {
+		List<Business> businesRecords = clientJobRepository.findAll(buildSpecificationByClientJob(filter));
+		List<Client> relatedClients = new ArrayList<>();
+		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
+		List<ClientBusinessSummaryDTO> businessSummaries = new ArrayList<>();
+
+		if (!CollectionUtils.isEmpty(businesRecords)) {
+			for (Business businesRecord : businesRecords) {
+				if (!relatedClients.contains(businesRecord.getClient())) {
+					relatedClients.add(businesRecord.getClient());
+				}
 			}
-			return cjs;
+			for (Client client : relatedClients) {
+				businessSummaries
+						.add(new ClientBusinessSummaryDTO(client.getId(), client.getFullName(), new ArrayList<>(), 0));
+			}
+			for (Business businesRecord : businesRecords) {
+				for (ClientBusinessSummaryDTO businessSummary : businessSummaries) {
+					if (businesRecord.getClient().getId() == businessSummary.getClientId()) {
+						businessSummary.setTotalHoursForClient(
+								businessSummary.getTotalHoursForClient() + businesRecord.getTotalHours());
+						businessSummary.getBusinessDetails()
+								.add(new BusinessDetailsDTO(businesRecord.getJob().getDescription(),
+										businesRecord.getTotalHours(), businesRecord.getDate()));
+					}
+				}
+			}
+			for (ClientBusinessSummaryDTO businessSummary : businessSummaries) {
+				businessSummaryDTO
+						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
+			}
+			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
+			return businessSummaryDTO;
+
 		}
 		return null;
 
-	}
-
-	public BusinessSummaryDTO getClientSummaryOnSpecificPeriod(ClientJobFilterDTO filter) {
-		List<Business> summary = clientJobRepository.findAll(buildSpecificationByClientJob(filter));
-		BusinessSummaryDTO cjs = new BusinessSummaryDTO();
-		log.info("summary size " + summary.size());
-		if (!CollectionUtils.isEmpty(summary)) {
-			cjs.setClientName(summary.get(0).getClient().getFullName());
-			for (Business clientJob : summary) {
-				cjs.setTotalHrs(cjs.getTotalHrs() + clientJob.getHoursNumber());
-				cjs.getBusinessDetails().add(new BusinessDetailsDTO(clientJob.getJobtype().getDescription(),
-						clientJob.getHoursNumber(), clientJob.getDate()));
-			}
-			return cjs;
-		}
-		return null;
 	}
 
 	public Specification<Business> buildSpecificationByClientJob(ClientJobFilterDTO filter) {
-		log.info("filter data " + "start date " + filter.getStartDate() + " end date " + filter.getEndDate()
-				+ "client id " + filter.getClientId());
 		return Specification
 				.where(new GenericSpecification<Business>(filter.getClientId(), "client.id", OperatorEnum.EQUAL)
-						.and(new GenericSpecification<Business>(filter.getStartDate(), "date",
-								OperatorEnum.DATE_AFTER))
+						.and(new GenericSpecification<Business>(filter.getStartDate(), "date", OperatorEnum.DATE_AFTER))
+						.and(new GenericSpecification<Business>(filter.getDate(), "date", OperatorEnum.EQUAL_OBJECT))
 						.and(new GenericSpecification<Business>(filter.getEndDate(), "date",
 								OperatorEnum.DATE_BEFORE)));
 

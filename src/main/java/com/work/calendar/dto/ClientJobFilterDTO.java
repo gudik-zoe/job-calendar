@@ -10,10 +10,21 @@ public class ClientJobFilterDTO {
 
 	private Date endDate;
 
-	public ClientJobFilterDTO(Long clientId, Date startDate, Date endDate) {
+	private Date date;
+
+	public ClientJobFilterDTO(Long clientId, Date startDate, Date endDate, Date date) {
 		this.clientId = clientId;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.date = date;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public Long getClientId() {
@@ -39,8 +50,5 @@ public class ClientJobFilterDTO {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-	
-	
-	
 
 }
