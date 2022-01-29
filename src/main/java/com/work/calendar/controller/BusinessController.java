@@ -65,8 +65,9 @@ public class BusinessController {
 	private ClientJobFilterDTO buildclientJobFilterDTO(Long clientId, String startingDate, String endingDate,
 			String date) throws ParseException {
 
-		SimpleDateFormat formatter = new SimpleDateFormat(dateFormat2 , Locale.ENGLISH);
-		Date theDate = date != null ? formatter.parse(date) : null;
+		SimpleDateFormat formatter = new SimpleDateFormat(dateFormat , Locale.ENGLISH);
+		log.info("after the change");
+		Date theDate = date != null ? formatter.parse(date.replace('T' , ' ')) : null;
 		Date startDate = startingDate != null ? formatter.parse(startingDate) : null;
 		Date endDate = endingDate != null ? formatter.parse(endingDate) : null;
 		if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
