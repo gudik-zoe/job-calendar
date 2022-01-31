@@ -1,5 +1,6 @@
 package com.work.calendar.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,8 +13,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.dto.BusinessDetailsDTO;
+import com.work.calendar.dto.BusinessListDTO;
 import com.work.calendar.dto.BusinessSummaryDTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
 import com.work.calendar.dto.ClientJobFilterDTO;
@@ -31,7 +34,7 @@ public class BusinessService extends CrudService<Business> {
 	private Logger log = LoggerFactory.getLogger(BusinessService.class);
 
 	@Autowired
-	private BusinessRepository clientJobRepository;
+	private BusinessRepository businessRepository;
 
 	@Autowired
 	private JobRepository jobRepository;
@@ -58,7 +61,7 @@ public class BusinessService extends CrudService<Business> {
 		cj.setEndTime(clientJobDTO.getEndTime());
 		cj.setPosition(clientJobDTO.getPosition());
 		cj.setDate(clientJobDTO.getDate());
-		return clientJobRepository.save(cj);
+		return businessRepository.save(cj);
 
 	}
 
@@ -84,7 +87,7 @@ public class BusinessService extends CrudService<Business> {
 
 	@Override
 	public JpaRepository<Business, Long> getRepository() {
-		return clientJobRepository;
+		return businessRepository;
 	}
 
 	@Override
@@ -93,8 +96,8 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public BusinessSummaryDTO getBusinessSummary(ClientJobFilterDTO filter) {
-		List<Business> businesRecords = clientJobRepository.findAll(buildSpecificationByClientJob(filter));
+	public Base64DTO getBusinessSummary(ClientJobFilterDTO filter) throws IOException {
+		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(filter));
 		List<Client> relatedClients = new ArrayList<>();
 		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
 		List<ClientBusinessSummaryDTO> businessSummaries = new ArrayList<>();
@@ -125,7 +128,14 @@ public class BusinessService extends CrudService<Business> {
 						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
-			return businessSummaryDTO;
+			if (!CollectionUtils.isEmpty(businessSummaries)) {
+				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO());
+				return excelCreator.exportToBase64("summaryFile");
+
+			} else {
+				log.info("its null");
+			}
+			return null;// return businessSummaryDTO;
 
 		}
 		return null;
@@ -136,10 +146,28 @@ public class BusinessService extends CrudService<Business> {
 		return Specification
 				.where(new GenericSpecification<Business>(filter.getClientId(), "client.id", OperatorEnum.EQUAL)
 						.and(new GenericSpecification<Business>(filter.getStartDate(), "date", OperatorEnum.DATE_AFTER))
-						.and(new GenericSpecification<Business>(filter.getDate(), "date", OperatorEnum.EQUAL_OBJECT))
 						.and(new GenericSpecification<Business>(filter.getEndDate(), "date",
 								OperatorEnum.DATE_BEFORE)));
 
+	}
+
+	public BusinessListDTO getBusinessOnDate(Date date) {
+		BusinessListDTO resultList = new BusinessListDTO();
+		List<Business> businessResult = businessRepository.getBusinessOnDate(date);
+		if (!CollectionUtils.isEmpty(businessResult)) {
+			for (Business business : businessResult) {
+				resultList.getResultList()
+						.add(new BusinessDTO(business.getNote(), business.getClient().getId(),
+								business.getJob().getId(), business.getClient().getFullName(),
+								business.getJob().getDescription(), business.getPosition(), business.getStartTime(),
+								business.getEndTime(), business.getDate()));
+				resultList.setTotal(resultList.getTotal() + 1);
+			}
+			return resultList;
+
+		}
+
+		return resultList;
 	}
 
 }

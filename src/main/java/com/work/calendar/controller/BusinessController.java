@@ -2,6 +2,7 @@ package com.work.calendar.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -31,6 +32,8 @@ public class BusinessController {
 
 	private final String dateFormat = "yyyy-MM-dd HH:MM:SS";
 	private final String dateFormat2 = "yyyy-MM-dd HH:mm:ss.ssssss";
+	private final String standardDate = "yyyy-mm-dd";
+	SimpleDateFormat formatter = new SimpleDateFormat(dateFormat2, Locale.ENGLISH);
 
 	@Autowired
 	private BusinessService businessService;
@@ -62,19 +65,28 @@ public class BusinessController {
 		}
 	}
 
+	@GetMapping("/")
+	public ResponseEntity<?> getBusinessOnDate(@RequestParam(value = "date", required = true) String date) {
+		String myFormat = "yyyy-MM-dd hh:mm:ss";
+		SimpleDateFormat formatter = new SimpleDateFormat(myFormat, Locale.ENGLISH);
+		try {
+			return ResponseEntity.ok().body(businessService.getBusinessOnDate(formatter.parse(date.replace("T", " "))));
+		} catch (Exception e) {
+			log.error("EXCEPTION on getBusinessOnDate: ", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
+		}
+	}
+
 	private ClientJobFilterDTO buildclientJobFilterDTO(Long clientId, String startingDate, String endingDate,
 			String date) throws ParseException {
 
-		SimpleDateFormat formatter = new SimpleDateFormat(dateFormat , Locale.ENGLISH);
-		log.info("after the change");
-		Date theDate = date != null ? formatter.parse(date.replace('T' , ' ')) : null;
 		Date startDate = startingDate != null ? formatter.parse(startingDate) : null;
 		Date endDate = endingDate != null ? formatter.parse(endingDate) : null;
 		if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
 			throw new Error("dates are not valid");
 		}
-		ClientJobFilterDTO clientJobFilterDTO = new ClientJobFilterDTO(clientId, startDate, endDate, theDate);
-		log.info(clientJobFilterDTO.getDate()+ " " + clientJobFilterDTO.getEndDate());
+		ClientJobFilterDTO clientJobFilterDTO = new ClientJobFilterDTO(clientId, startDate, endDate);
+//		log.info(clientJobFilterDTO.getDate()+ " " + clientJobFilterDTO.getEndDate());
 		return clientJobFilterDTO;
 	}
 

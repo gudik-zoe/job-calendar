@@ -8,10 +8,25 @@ public class BusinessDTO {
 
 	private Long clientId;
 	private Long jobId;
+	private String clientFullName;
+	private String jobDescription;
 	private String position;
 	private Date startTime;
 	private Date endTime;
 	private Date date;
+
+	public BusinessDTO(String note, Long clientId, Long jobId, String clientFullName, String jobDescription,
+			String position, Date startTime, Date endTime, Date date) {
+		this.note = note;
+		this.clientId = clientId;
+		this.jobId = jobId;
+		this.clientFullName = clientFullName;
+		this.jobDescription = jobDescription;
+		this.position = position;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.date = date;
+	}
 
 	public String getNote() {
 		return note;
@@ -67,6 +82,22 @@ public class BusinessDTO {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public String getClientFullName() {
+		return clientFullName;
+	}
+
+	public void setClientFullName(String clientFullName) {
+		this.clientFullName = clientFullName;
+	}
+
+	public String getJobDescription() {
+		return jobDescription;
+	}
+
+	public void setJobDescription(String jobDescription) {
+		this.jobDescription = jobDescription;
 	}
 
 }

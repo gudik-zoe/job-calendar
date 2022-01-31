@@ -12,4 +12,7 @@ import com.work.calendar.entity.Business;
 
 public interface BusinessRepository extends JpaRepository<Business, Long>, JpaSpecificationExecutor<Business> {
 
+	@Query("SELECT b FROM Business b where CAST(b.date AS date)= CAST(:date AS date)")
+	List<Business> getBusinessOnDate(@Param(value = "date") Date date);
+
 }
