@@ -48,7 +48,7 @@ public class BusinessService extends CrudService<Business> {
 	@Autowired
 	private JobService jobService;
 
-	public Business addEntity(BusinessDTO clientJobDTO) throws Exception {
+	public BusinessDTO addEntity(BusinessDTO clientJobDTO) throws Exception {
 
 		Business cj = new Business();
 //		log.info("time difference " +((clientJobDTO.getEndTime().getTime() - clientJobDTO.getStartTime().getTime()) / (1000 * 60 * 60))
@@ -61,7 +61,10 @@ public class BusinessService extends CrudService<Business> {
 		cj.setEndTime(clientJobDTO.getEndTime());
 		cj.setPosition(clientJobDTO.getPosition());
 		cj.setDate(clientJobDTO.getDate());
-		return businessRepository.save(cj);
+		clientJobDTO.setClientFullName(clientJobDTO.getClientFullName());
+		clientJobDTO.setJobDescription(clientJobDTO.getJobDescription());
+		 businessRepository.save(cj);
+		 return clientJobDTO;
 
 	}
 
