@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import com.work.calendar.dto.ClientBusinessSummaryDTO;
 import com.work.calendar.dto.ClientJobFilterDTO;
 import com.work.calendar.entity.Business;
 import com.work.calendar.entity.Client;
+import com.work.calendar.mappers.BusinessDTOMapper;
 import com.work.calendar.repository.BusinessRepository;
 import com.work.calendar.repository.ClientRepository;
 import com.work.calendar.repository.JobRepository;
@@ -47,6 +49,18 @@ public class BusinessService extends CrudService<Business> {
 
 	@Autowired
 	private JobService jobService;
+	@Autowired
+	BusinessDTOMapper businessDTOMapper;
+
+	public BusinessDTO findBusinessById(Long businessId) {
+		Optional<Business> business = businessRepository.findById(businessId);
+		if (business.isPresent()) {
+			log.info("here");
+			return businessDTOMapper.toBusinessDTO(business.get());
+		}
+		log.info("not found");
+		return null;
+	}
 
 	public BusinessDTO addEntity(BusinessDTO clientJobDTO) throws Exception {
 
@@ -63,8 +77,8 @@ public class BusinessService extends CrudService<Business> {
 		cj.setDate(clientJobDTO.getDate());
 		clientJobDTO.setClientFullName(clientJobDTO.getClientFullName());
 		clientJobDTO.setJobDescription(clientJobDTO.getJobDescription());
-		 businessRepository.save(cj);
-		 return clientJobDTO;
+		businessRepository.save(cj);
+		return clientJobDTO;
 
 	}
 
@@ -160,7 +174,7 @@ public class BusinessService extends CrudService<Business> {
 		if (!CollectionUtils.isEmpty(businessResult)) {
 			for (Business business : businessResult) {
 				resultList.getResultList()
-						.add(new BusinessDTO(business.getNote(), business.getClient().getId(),
+						.add(new BusinessDTO(business.getId(), business.getNote(), business.getClient().getId(),
 								business.getJob().getId(), business.getClient().getFullName(),
 								business.getJob().getDescription(), business.getPosition(), business.getStartTime(),
 								business.getEndTime(), business.getDate()));

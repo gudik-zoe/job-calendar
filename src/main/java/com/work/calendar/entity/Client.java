@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "client")
-public class Client implements Serializable{
+public class Client implements Serializable {
 	/**
 	 * 
 	 */
@@ -27,13 +27,16 @@ public class Client implements Serializable{
 
 	private Date timeStamp;
 
+	private String color;
+
 	public Client() {
 
 	}
 
-	public Client(String fullName, Date timeStamp) {
+	public Client(String fullName, Date timeStamp, String color) {
 		this.fullName = fullName;
 		this.timeStamp = timeStamp;
+		this.color = color;
 	}
 
 	public Long getId() {
@@ -50,6 +53,14 @@ public class Client implements Serializable{
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 	public Date getTimeStamp() {

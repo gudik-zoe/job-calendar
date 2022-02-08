@@ -5,7 +5,7 @@ import java.util.Date;
 public class BusinessDTO {
 
 	private String note;
-
+	private Long businessId;
 	private Long clientId;
 	private Long jobId;
 	private String clientFullName;
@@ -14,9 +14,14 @@ public class BusinessDTO {
 	private Date startTime;
 	private Date endTime;
 	private Date date;
+	
+	public BusinessDTO() {
+		
+	}
 
-	public BusinessDTO(String note, Long clientId, Long jobId, String clientFullName, String jobDescription,
+	public BusinessDTO(Long businessId ,String note, Long clientId, Long jobId, String clientFullName, String jobDescription,
 			String position, Date startTime, Date endTime, Date date) {
+		this.businessId = businessId;
 		this.note = note;
 		this.clientId = clientId;
 		this.jobId = jobId;
@@ -98,6 +103,14 @@ public class BusinessDTO {
 
 	public void setJobDescription(String jobDescription) {
 		this.jobDescription = jobDescription;
+	}
+
+	public Long getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Long businessId) {
+		this.businessId = businessId;
 	}
 
 }

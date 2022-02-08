@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.work.calendar.dto.ClientDTO;
 import com.work.calendar.entity.Client;
 import com.work.calendar.service.ClientService;
 
@@ -51,9 +52,9 @@ public class ClientController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<?> addClient(@RequestBody Client theClient) {
+	public ResponseEntity<?> addClient(@RequestBody ClientDTO clientDTO) {
 		try {
-			Client client = clientService.addClient(theClient);
+			Client client = clientService.addClient(clientDTO);
 			return ResponseEntity.ok().body(client);
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClients: ", e);

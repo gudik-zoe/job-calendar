@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import com.work.calendar.controller.ClientController;
+import com.work.calendar.dto.ClientDTO;
 import com.work.calendar.entity.Client;
 import com.work.calendar.repository.ClientRepository;
 
@@ -22,24 +22,29 @@ public class ClientService extends CrudService<Client> {
 	@Autowired
 	private ClientRepository clientRepository;
 
-	public boolean validateEntity(Client entity) {
+	public boolean validateEntity(ClientDTO entity) {
 		return (entity.getFullName().length() > 3) ? true : false;
 
 	}
 
-	public Client addClient(Client client) {
-		if (validateEntity(client)) {
-			client.setTimeStamp(new Date());
+	public Client addClient(ClientDTO clientDTO) {
+		if (validateEntity(clientDTO)) {
+			Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
 			log.info("setting creation date in service");
-			return clientRepository.save(client);
+			clientRepository.save(client);
+			return client;
 		}
 		log.error("client not valid");
 		return null;
 	}
 
 	public void deleteClient(Long id) {
-		clientRepository.deleteById(id);
-
+		try {
+			clientRepository.deleteById(id);
+		} catch (Exception e) {
+			log.error("error deleting a client " + e.getMessage());
+			throw new Error("couldn't delet client");
+		}
 	}
 
 	public List<Client> getClients() {
@@ -47,9 +52,9 @@ public class ClientService extends CrudService<Client> {
 	}
 
 	public Client getClientById(Long id) throws AccountNotFoundException {
-		if(clientRepository.findById(id).get() != null) {
+		if (clientRepository.findById(id).get() != null) {
 			return clientRepository.findById(id).get();
-		}else {
+		} else {
 			throw new AccountNotFoundException("no client account with the id " + id);
 		}
 	}
@@ -57,5 +62,11 @@ public class ClientService extends CrudService<Client> {
 	@Override
 	public JpaRepository<Client, Long> getRepository() {
 		return clientRepository;
+	}
+
+	@Override
+	public boolean validateEntity(Client entity) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
