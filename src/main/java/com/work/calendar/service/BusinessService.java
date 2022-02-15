@@ -1,7 +1,9 @@
 package com.work.calendar.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -145,8 +147,12 @@ public class BusinessService extends CrudService<Business> {
 						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
+			Calendar c = Calendar.getInstance();
+			c.set(2022, Calendar.JANUARY, 1);
+			int maxDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+			log.info("dayyyyys" + maxDay);
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
-				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO());
+				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO() , maxDay);
 				return excelCreator.exportToBase64("summaryFile");
 
 			} else {

@@ -12,6 +12,8 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDetailsDTO;
@@ -20,14 +22,16 @@ import com.work.calendar.dto.ClientBusinessSummaryDTO;
 import antlr.StringUtils;
 
 public class ExcelCreator {
-
+	private Logger log = LoggerFactory.getLogger(ExcelCreator.class);
 	private XSSFWorkbook workbook;
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
+	private int daysOfTheMonth;
 
-	public ExcelCreator(List<ClientBusinessSummaryDTO> result) {
+	public ExcelCreator(List<ClientBusinessSummaryDTO> result, int daysOfTheMonth) {
 		this.result = result;
 		workbook = new XSSFWorkbook();
+		this.daysOfTheMonth = daysOfTheMonth;
 	}
 
 	public void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -58,11 +62,16 @@ public class ExcelCreator {
 		font.setFontHeight(16);
 		style.setFont(font);
 
-		createCell(row, 0, "nome cliente", style);
-		createCell(row, 1, "nome commessa", style);
-		createCell(row, 2, "data", style);
-		createCell(row, 3, "durata", style);
-		createCell(row, 4, "totale per il cliente", style);
+		createCell(row, 0, "CLIENTE", style);
+		createCell(row, 1, "COMMESSA", style);
+		createCell(row, 2, "DATA", style);
+		createCell(row, 3, "FERIE", style);
+		int i = 4;
+		for (int day = 1; day <= daysOfTheMonth; day++) {
+			createCell(row, i, day, style);
+			i++;
+		}
+		createCell(row, i, "TOTALI", style);
 
 	}
 
@@ -75,18 +84,25 @@ public class ExcelCreator {
 		style.setFont(font);
 
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
-			Row row = sheet.createRow(rowCount++);
-			int columnCount = 0;
-			createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
-			createCell(row, columnCount+3, clientBusinessSummaryDTO.getTotalHoursForClient(), style);
 			for (BusinessDetailsDTO businessDetailsDTO : clientBusinessSummaryDTO.getBusinessDetails()) {
-				Row row2 = sheet.createRow(rowCount++);
-				int columnCount2 = 1;
-				createCell(row2, columnCount2++, businessDetailsDTO.getJobDescription(), style);
-				createCell(row2, columnCount2++, businessDetailsDTO.getDate().toString().substring(0,16), style);
-				createCell(row2, columnCount2++, businessDetailsDTO.getJobDuration(), style);
+				Row row = sheet.createRow(rowCount++);
+				int columnCount = 0;
+				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
+				createCell(row, columnCount++, businessDetailsDTO.getJobDescription(), style);
+				createCell(row, columnCount++, businessDetailsDTO.getDate().toString().substring(0, 16), style);
+				createCell(row, columnCount++, " ", style);
 
 			}
+//			createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
+//			createCell(row, columnCount + 3, clientBusinessSummaryDTO.getTotalHoursForClient(), style);
+//			for (BusinessDetailsDTO businessDetailsDTO : clientBusinessSummaryDTO.getBusinessDetails()) {
+//				Row row2 = sheet.createRow(rowCount++);
+//				int columnCount2 = 1;
+//				createCell(row2, columnCount2++, businessDetailsDTO.getJobDescription(), style);
+//				createCell(row2, columnCount2++, businessDetailsDTO.getDate().toString().substring(0, 16), style);
+//				createCell(row2, columnCount2++, businessDetailsDTO.getJobDuration(), style);
+//
+//			}
 		}
 	}
 
