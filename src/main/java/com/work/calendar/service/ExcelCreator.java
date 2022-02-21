@@ -2,9 +2,14 @@ package com.work.calendar.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.poi.hssf.record.BlankRecord;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDetailsDTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
+import com.work.calendar.dto.JobsDetail;
 
 import antlr.StringUtils;
 
@@ -82,27 +88,29 @@ public class ExcelCreator {
 		XSSFFont font = workbook.createFont();
 		font.setFontHeight(14);
 		style.setFont(font);
-
+		Calendar calendar = Calendar.getInstance();
+		Map<Integer, Double> map = new HashMap<>();
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
-			for (BusinessDetailsDTO businessDetailsDTO : clientBusinessSummaryDTO.getBusinessDetails()) {
+			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
 				int columnCount = 0;
 				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
-				createCell(row, columnCount++, businessDetailsDTO.getJobDescription(), style);
-				createCell(row, columnCount++, businessDetailsDTO.getDate().toString().substring(0, 16), style);
-				createCell(row, columnCount++, " ", style);
+				createCell(row, columnCount++, entry.getKey(), style);
+				createCell(row, columnCount++, "data ", style);
+				createCell(row, columnCount++, "ferie ", style);
+				for (JobsDetail jobsDetail : entry.getValue()) {
+					calendar.setTime(jobsDetail.getDate());
+					map.put(calendar.get(Calendar.DAY_OF_MONTH), jobsDetail.getJobDuration());
+				}
+				for (int day = 1; day <= daysOfTheMonth; day++) {
+					if (map.containsKey(day)) {
+						createCell(row, columnCount++, map.get(day), style);
+					} else {
+						createCell(row, columnCount++, " ", style);
+					}
+				}
 
 			}
-//			createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
-//			createCell(row, columnCount + 3, clientBusinessSummaryDTO.getTotalHoursForClient(), style);
-//			for (BusinessDetailsDTO businessDetailsDTO : clientBusinessSummaryDTO.getBusinessDetails()) {
-//				Row row2 = sheet.createRow(rowCount++);
-//				int columnCount2 = 1;
-//				createCell(row2, columnCount2++, businessDetailsDTO.getJobDescription(), style);
-//				createCell(row2, columnCount2++, businessDetailsDTO.getDate().toString().substring(0, 16), style);
-//				createCell(row2, columnCount2++, businessDetailsDTO.getJobDuration(), style);
-//
-//			}
 		}
 	}
 

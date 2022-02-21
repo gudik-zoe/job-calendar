@@ -1,15 +1,15 @@
 package com.work.calendar.dto;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClientBusinessSummaryDTO {
 	private Long clientId;
 
 	private String clientName;
 
-	List<BusinessDetailsDTO> businessDetails = new ArrayList<>();
+	Map<String, List<JobsDetail>> jobs = new HashMap<>();
 
 	private double totalHoursForClient;
 
@@ -17,11 +17,11 @@ public class ClientBusinessSummaryDTO {
 
 	}
 
-	public ClientBusinessSummaryDTO(Long clientId, String clientName, List<BusinessDetailsDTO> businessDetails,
+	public ClientBusinessSummaryDTO(Long clientId, String clientName, Map<String, List<JobsDetail>> jobs,
 			double totalHoursForClient) {
 		this.clientId = clientId;
 		this.clientName = clientName;
-		this.businessDetails = businessDetails;
+		this.jobs = jobs;
 		this.totalHoursForClient = totalHoursForClient;
 	}
 
@@ -33,12 +33,12 @@ public class ClientBusinessSummaryDTO {
 		this.clientName = clientName;
 	}
 
-	public List<BusinessDetailsDTO> getBusinessDetails() {
-		return businessDetails;
+	public Map<String, List<JobsDetail>> getJobs() {
+		return jobs;
 	}
 
-	public void setBusinessDetails(List<BusinessDetailsDTO> businessDetails) {
-		this.businessDetails = businessDetails;
+	public void setJobs(Map<String, List<JobsDetail>> jobs) {
+		this.jobs = jobs;
 	}
 
 	public Long getClientId() {

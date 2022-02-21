@@ -1,17 +1,18 @@
 package com.work.calendar.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class BusinessDetailsDTO {
 
 	private String jobDescription;
-	private double jobDuration;
-	private Date date;
 
-	public BusinessDetailsDTO(String jobDescription, double jobDuration, Date date) {
+	private List<JobsDetail> jobDetails = new ArrayList<>();
+
+	public BusinessDetailsDTO(String jobDescription, List<JobsDetail> jobDetails) {
 		this.jobDescription = jobDescription;
-		this.jobDuration = jobDuration;
-		this.date = date;
+		this.jobDetails = jobDetails;
 	}
 
 	public String getJobDescription() {
@@ -22,20 +23,12 @@ public class BusinessDetailsDTO {
 		this.jobDescription = jobDescription;
 	}
 
-	public double getJobDuration() {
-		return jobDuration;
+	public List<JobsDetail> getJobDetails() {
+		return jobDetails;
 	}
 
-	public void setJobDuration(double jobDuration) {
-		this.jobDuration = jobDuration;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
+	public void setJobDetails(List<JobsDetail> jobDetails) {
+		this.jobDetails = jobDetails;
 	}
 
 }
