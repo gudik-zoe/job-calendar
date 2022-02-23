@@ -2,6 +2,7 @@ package com.work.calendar.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +34,8 @@ public class ExcelCreator {
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
 	private int daysOfTheMonth;
+
+	private static DecimalFormat df = new DecimalFormat("0.00");
 
 	public ExcelCreator(List<ClientBusinessSummaryDTO> result, int daysOfTheMonth) {
 		this.result = result;
@@ -98,18 +101,21 @@ public class ExcelCreator {
 				createCell(row, columnCount++, entry.getKey(), style);
 				createCell(row, columnCount++, "data ", style);
 				createCell(row, columnCount++, "ferie ", style);
+				map.clear();
+				double total = 0;
 				for (JobsDetail jobsDetail : entry.getValue()) {
 					calendar.setTime(jobsDetail.getDate());
 					map.put(calendar.get(Calendar.DAY_OF_MONTH), jobsDetail.getJobDuration());
 				}
 				for (int day = 1; day <= daysOfTheMonth; day++) {
 					if (map.containsKey(day)) {
-						createCell(row, columnCount++, map.get(day), style);
+						total += map.get(day);
+						createCell(row, columnCount++, df.format(map.get(day)), style);
 					} else {
 						createCell(row, columnCount++, " ", style);
 					}
 				}
-
+				createCell(row, columnCount++, df.format(total), style);
 			}
 		}
 	}
