@@ -1,6 +1,7 @@
 package com.work.calendar.service;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -117,7 +118,7 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public Base64DTO getBusinessSummary(ClientJobFilterDTO filter) throws IOException {
+	public Base64DTO getBusinessSummary(ClientJobFilterDTO filter) throws IOException, ParseException {
 		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(filter));
 		List<Client> relatedClients = new ArrayList<>();
 		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
@@ -157,12 +158,12 @@ public class BusinessService extends CrudService<Business> {
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
 			Calendar c = Calendar.getInstance();
-			c.set(2022, Calendar.JANUARY, 1);
+			c.set(2022, Calendar.FEBRUARY, 1);
 			int maxDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
 			log.info("dayyyyys" + maxDay);
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
-			ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO() , maxDay);
-			return excelCreator.exportToBase64("summaryFile");
+				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(), c);
+				return excelCreator.exportToBase64("summaryFile");
 //				return businessSummaryDTO;
 			} else {
 				log.info("its null");

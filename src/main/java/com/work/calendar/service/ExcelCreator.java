@@ -3,18 +3,17 @@ package com.work.calendar.service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.record.BlankRecord;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -22,25 +21,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.work.calendar.dto.Base64DTO;
-import com.work.calendar.dto.BusinessDetailsDTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
 import com.work.calendar.dto.JobsDetail;
-
-import antlr.StringUtils;
+import com.work.calendar.utility.ExcelStyle;
 
 public class ExcelCreator {
 	private Logger log = LoggerFactory.getLogger(ExcelCreator.class);
+
+//	@Autowired
+//	private ExcelStyle ExcelStyle;
+
 	private XSSFWorkbook workbook;
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
-	private int daysOfTheMonth;
+	private Calendar calendar;
 
 	private static DecimalFormat df = new DecimalFormat("0.00");
 
-	public ExcelCreator(List<ClientBusinessSummaryDTO> result, int daysOfTheMonth) {
+	public ExcelCreator(List<ClientBusinessSummaryDTO> result, Calendar calendar) {
 		this.result = result;
 		workbook = new XSSFWorkbook();
-		this.daysOfTheMonth = daysOfTheMonth;
+		this.calendar = calendar;
 	}
 
 	public void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -60,67 +61,108 @@ public class ExcelCreator {
 		cell.setCellStyle(style);
 	}
 
-	public void writeHeaderLine() {
+	private CellStyle getStyleFromDay(int day) throws ParseException {
+		Calendar cal = Calendar.getInstance();
+		int month = calendar.MONTH;
+		String dayDate = day + "/" + (month + 1) + "/2022";
+		Date dayDateUtil = new SimpleDateFormat("dd/MM/yyyy").parse(dayDate);
+		cal.setTime(dayDateUtil);
+		int theDay = cal.get(Calendar.DAY_OF_WEEK);
+		if (theDay == Calendar.SATURDAY || theDay == Calendar.SUNDAY) {
+			return ExcelStyle.weekEndStyle(workbook);
+		} else {
+			return ExcelStyle.valueStyle(workbook);
+		}
+	}
+
+	public void writeHeaderLine() throws ParseException {
 		sheet = workbook.createSheet("summary");
-
 		Row row = sheet.createRow(0);
-
-		CellStyle style = workbook.createCellStyle();
-		XSSFFont font = workbook.createFont();
-		font.setBold(true);
-		font.setFontHeight(16);
-		style.setFont(font);
-
-		createCell(row, 0, "CLIENTE", style);
-		createCell(row, 1, "COMMESSA", style);
-		createCell(row, 2, "DATA", style);
-		createCell(row, 3, "FERIE", style);
+		int month = calendar.MONTH;
+		createCell(row, 0, "CLIENTE", ExcelStyle.headerStyle(workbook));
+		createCell(row, 1, "COMMESSA", ExcelStyle.headerStyle(workbook));
+		createCell(row, 2, "DATA", ExcelStyle.headerStyle(workbook));
+		createCell(row, 3, "FERIE", ExcelStyle.headerStyle(workbook));
 		int i = 4;
-		for (int day = 1; day <= daysOfTheMonth; day++) {
-			createCell(row, i, day, style);
+		for (int day = 1; day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
+			createCell(row, i, day, getStyleFromDay(day));
 			i++;
 		}
-		createCell(row, i, "TOTALI", style);
+		createCell(row, i, "TOTALI", ExcelStyle.headerStyle(workbook));
 
 	}
 
-	public void writeDataLines() {
+	public void writeDataLines() throws ParseException {
 		int rowCount = 1;
-
-		CellStyle style = workbook.createCellStyle();
-		XSSFFont font = workbook.createFont();
-		font.setFontHeight(14);
-		style.setFont(font);
-		Calendar calendar = Calendar.getInstance();
+		Calendar calendar2 = Calendar.getInstance();
 		Map<Integer, Double> map = new HashMap<>();
+		Map<Integer, Double> totalDayMap = new HashMap<>();
+		for (int day = 1; day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
+			totalDayMap.put(day, 0.0);
+		}
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
 			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
+				row.setRowStyle(ExcelStyle.valueStyle(workbook));
 				int columnCount = 0;
-				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(), style);
-				createCell(row, columnCount++, entry.getKey(), style);
-				createCell(row, columnCount++, "data ", style);
-				createCell(row, columnCount++, "ferie ", style);
+				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(),
+						ExcelStyle.valueStyle(workbook));
+				createCell(row, columnCount++, entry.getKey(), ExcelStyle.valueStyle(workbook));
+				createCell(row, columnCount++, "data ", ExcelStyle.valueStyle(workbook));
+				createCell(row, columnCount++, "ferie ", ExcelStyle.valueStyle(workbook));
 				map.clear();
 				double total = 0;
 				for (JobsDetail jobsDetail : entry.getValue()) {
-					calendar.setTime(jobsDetail.getDate());
-					map.put(calendar.get(Calendar.DAY_OF_MONTH), jobsDetail.getJobDuration());
+					calendar2.setTime(jobsDetail.getDate());
+					map.put(calendar2.get(Calendar.DAY_OF_MONTH), jobsDetail.getJobDuration());
 				}
-				for (int day = 1; day <= daysOfTheMonth; day++) {
+				for (int day = 1; day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
 					if (map.containsKey(day)) {
+						totalDayMap.put(day, totalDayMap.get(day) + map.get(day));
 						total += map.get(day);
-						createCell(row, columnCount++, df.format(map.get(day)), style);
+						createCell(row, columnCount++, df.format(map.get(day)), getStyleFromDay(day));
 					} else {
-						createCell(row, columnCount++, " ", style);
+						totalDayMap.put(day, totalDayMap.get(day) + 0.0);
+						createCell(row, columnCount++, " ", getStyleFromDay(day));
 					}
 				}
-				createCell(row, columnCount++, df.format(total), style);
+				createCell(row, columnCount++, df.format(total), ExcelStyle.valueStyle(workbook));
+
 			}
 		}
+		insertTotalDaysHoursColumn(totalDayMap);
+//		Row lastRow = sheet.createRow(result.size() + 1);
+//		;
+//		int columnCount2 = 3;
+//		createCell(lastRow, columnCount2++, "TOTALI", ExcelStyle.headerStyle(workbook));
+//		double totalMonthHours = 0;
+//		for (Map.Entry<Integer, Double> totalDayMapEntry : totalDayMap.entrySet()) {
+//			totalMonthHours += totalDayMapEntry.getValue();
+//			createCell(lastRow, columnCount2++, df.format(totalDayMapEntry.getValue()),
+//					getStyleFromDay(totalDayMapEntry.getKey()));
+//		}
+//		createCell(lastRow, columnCount2++, df.format(totalMonthHours), ExcelStyle.valueStyle(workbook));
+		for (int i = 0; i <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + 5; i++) {
+			sheet.autoSizeColumn(i);
+		}
+
 	}
 
-	public ByteArrayOutputStream export() throws IOException {
+	private void insertTotalDaysHoursColumn(Map<Integer, Double> totalDayMap) throws ParseException {
+		Row lastRow = sheet.createRow(result.size() + 1);
+		int columnCount = 3;
+		createCell(lastRow, columnCount++, "TOTALI", ExcelStyle.headerStyle(workbook));
+		double totalMonthHours = 0;
+		for (Map.Entry<Integer, Double> totalDayMapEntry : totalDayMap.entrySet()) {
+			totalMonthHours += totalDayMapEntry.getValue();
+			createCell(lastRow, columnCount++, df.format(totalDayMapEntry.getValue()),
+					getStyleFromDay(totalDayMapEntry.getKey()));
+		}
+		createCell(lastRow, columnCount++, df.format(totalMonthHours), ExcelStyle.valueStyle(workbook));
+
+	}
+
+	public ByteArrayOutputStream export() throws IOException, ParseException {
 		writeHeaderLine();
 		writeDataLines();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -130,7 +172,7 @@ public class ExcelCreator {
 		return bos;
 	}
 
-	public Base64DTO exportToBase64(String fileName) throws IOException {
+	public Base64DTO exportToBase64(String fileName) throws IOException, ParseException {
 		writeHeaderLine();
 		writeDataLines();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
