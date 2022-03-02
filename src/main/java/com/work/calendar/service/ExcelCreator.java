@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,10 +28,7 @@ import com.work.calendar.utility.ExcelStyle;
 
 public class ExcelCreator {
 	private Logger log = LoggerFactory.getLogger(ExcelCreator.class);
-
-//	@Autowired
-//	private ExcelStyle ExcelStyle;
-
+	
 	private XSSFWorkbook workbook;
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
@@ -77,8 +75,9 @@ public class ExcelCreator {
 
 	public void writeHeaderLine() throws ParseException {
 		sheet = workbook.createSheet("summary");
-		Row row = sheet.createRow(0);
-		int month = calendar.MONTH;
+		Row firstRow = sheet.createRow(0);
+		createCell(firstRow, 18, calendar.getDisplayName(calendar.MONTH, calendar.LONG, Locale.getDefault()), ExcelStyle.headerStyle(workbook));
+		Row row = sheet.createRow(1);
 		createCell(row, 0, "CLIENTE", ExcelStyle.headerStyle(workbook));
 		createCell(row, 1, "COMMESSA", ExcelStyle.headerStyle(workbook));
 		createCell(row, 2, "DATA", ExcelStyle.headerStyle(workbook));
@@ -93,7 +92,7 @@ public class ExcelCreator {
 	}
 
 	public void writeDataLines() throws ParseException {
-		int rowCount = 1;
+		int rowCount = 2;
 		Calendar calendar2 = Calendar.getInstance();
 		Map<Integer, Double> map = new HashMap<>();
 		Map<Integer, Double> totalDayMap = new HashMap<>();
@@ -103,6 +102,7 @@ public class ExcelCreator {
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
 			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
+				log.info("row number " +row );
 				row.setRowStyle(ExcelStyle.valueStyle(workbook));
 				int columnCount = 0;
 				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(),
@@ -123,25 +123,14 @@ public class ExcelCreator {
 						createCell(row, columnCount++, df.format(map.get(day)), getStyleFromDay(day));
 					} else {
 						totalDayMap.put(day, totalDayMap.get(day) + 0.0);
-						createCell(row, columnCount++, " ", getStyleFromDay(day));
+						createCell(row, columnCount++, null, getStyleFromDay(day));
 					}
 				}
 				createCell(row, columnCount++, df.format(total), ExcelStyle.valueStyle(workbook));
-
+				
 			}
 		}
 		insertTotalDaysHoursColumn(totalDayMap);
-//		Row lastRow = sheet.createRow(result.size() + 1);
-//		;
-//		int columnCount2 = 3;
-//		createCell(lastRow, columnCount2++, "TOTALI", ExcelStyle.headerStyle(workbook));
-//		double totalMonthHours = 0;
-//		for (Map.Entry<Integer, Double> totalDayMapEntry : totalDayMap.entrySet()) {
-//			totalMonthHours += totalDayMapEntry.getValue();
-//			createCell(lastRow, columnCount2++, df.format(totalDayMapEntry.getValue()),
-//					getStyleFromDay(totalDayMapEntry.getKey()));
-//		}
-//		createCell(lastRow, columnCount2++, df.format(totalMonthHours), ExcelStyle.valueStyle(workbook));
 		for (int i = 0; i <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + 5; i++) {
 			sheet.autoSizeColumn(i);
 		}
@@ -149,7 +138,7 @@ public class ExcelCreator {
 	}
 
 	private void insertTotalDaysHoursColumn(Map<Integer, Double> totalDayMap) throws ParseException {
-		Row lastRow = sheet.createRow(result.size() + 1);
+		Row lastRow = sheet.createRow(result.size() + 2);
 		int columnCount = 3;
 		createCell(lastRow, columnCount++, "TOTALI", ExcelStyle.headerStyle(workbook));
 		double totalMonthHours = 0;
