@@ -28,14 +28,12 @@ public class ClientService extends CrudService<Client> {
 	}
 
 	public Client addClient(ClientDTO clientDTO) {
-		if (validateEntity(clientDTO)) {
-			Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
-			log.info("setting creation date in service");
-			clientRepository.save(client);
-			return client;
-		}
-		log.error("client not valid");
-		return null;
+
+		Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
+		log.info("setting creation date in service " + clientDTO.getColor());
+		clientRepository.save(client);
+		return client;
+
 	}
 
 	public void deleteClient(Long id) {
