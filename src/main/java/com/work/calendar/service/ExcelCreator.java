@@ -28,7 +28,7 @@ import com.work.calendar.utility.ExcelStyle;
 
 public class ExcelCreator {
 	private Logger log = LoggerFactory.getLogger(ExcelCreator.class);
-	
+
 	private XSSFWorkbook workbook;
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
@@ -76,7 +76,8 @@ public class ExcelCreator {
 	public void writeHeaderLine() throws ParseException {
 		sheet = workbook.createSheet("summary");
 		Row firstRow = sheet.createRow(0);
-		createCell(firstRow, 18, calendar.getDisplayName(calendar.MONTH, calendar.LONG, Locale.getDefault()), ExcelStyle.headerStyle(workbook));
+		createCell(firstRow, 18, calendar.getDisplayName(calendar.MONTH, calendar.LONG, Locale.getDefault()),
+				ExcelStyle.headerStyle(workbook));
 		Row row = sheet.createRow(1);
 		createCell(row, 0, "CLIENTE", ExcelStyle.headerStyle(workbook));
 		createCell(row, 1, "COMMESSA", ExcelStyle.headerStyle(workbook));
@@ -96,13 +97,14 @@ public class ExcelCreator {
 		Calendar calendar2 = Calendar.getInstance();
 		Map<Integer, Double> map = new HashMap<>();
 		Map<Integer, Double> totalDayMap = new HashMap<>();
+		Integer lastRow = null; 
 		for (int day = 1; day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
 			totalDayMap.put(day, 0.0);
 		}
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
 			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
-				log.info("row number " +row );
+				log.info("row number " + row);
 				row.setRowStyle(ExcelStyle.valueStyle(workbook));
 				int columnCount = 0;
 				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(),
@@ -127,18 +129,20 @@ public class ExcelCreator {
 					}
 				}
 				createCell(row, columnCount++, df.format(total), ExcelStyle.valueStyle(workbook));
-				
+				lastRow = rowCount;
 			}
 		}
-		insertTotalDaysHoursColumn(totalDayMap);
+		insertTotalDaysHoursColumn(totalDayMap , rowCount);
 		for (int i = 0; i <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + 5; i++) {
 			sheet.autoSizeColumn(i);
 		}
 
 	}
 
-	private void insertTotalDaysHoursColumn(Map<Integer, Double> totalDayMap) throws ParseException {
-		Row lastRow = sheet.createRow(result.size() + 2);
+	private void insertTotalDaysHoursColumn(Map<Integer, Double> totalDayMap , Integer rowCount) throws ParseException {
+	
+		log.info("theColumnCount " + rowCount);
+		Row lastRow = sheet.createRow(rowCount);
 		int columnCount = 3;
 		createCell(lastRow, columnCount++, "TOTALI", ExcelStyle.headerStyle(workbook));
 		double totalMonthHours = 0;

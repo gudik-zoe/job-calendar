@@ -157,20 +157,19 @@ public class BusinessService extends CrudService<Business> {
 						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
-			Calendar c = Calendar.getInstance();
-			c.set(2022, Calendar.FEBRUARY, 1);
-			int maxDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-			log.info("dayyyyys" + maxDay);
+			int maxDay = filter.getCalendar().getActualMaximum(Calendar.DAY_OF_MONTH);
+			log.info("size " + businessSummaries.size());
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
-				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(), c);
+				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(),
+						filter.getCalendar());
 				return excelCreator.exportToBase64("summaryFile");
-//				return businessSummaryDTO;
 			} else {
 				log.info("its null");
 			}
 			return null;// return businessSummaryDTO;
 
 		}
+		log.info("it's empty");
 		return null;
 
 	}
@@ -178,6 +177,7 @@ public class BusinessService extends CrudService<Business> {
 	public Specification<Business> buildSpecificationByClientJob(ClientJobFilterDTO filter) {
 		return Specification
 				.where(new GenericSpecification<Business>(filter.getClientId(), "client.id", OperatorEnum.EQUAL)
+						.and(new GenericSpecification<Business>(filter.getJobId(), "job.id", OperatorEnum.EQUAL))
 						.and(new GenericSpecification<Business>(filter.getStartDate(), "date", OperatorEnum.DATE_AFTER))
 						.and(new GenericSpecification<Business>(filter.getEndDate(), "date",
 								OperatorEnum.DATE_BEFORE)));

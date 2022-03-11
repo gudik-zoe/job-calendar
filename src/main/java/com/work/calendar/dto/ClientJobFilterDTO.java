@@ -1,19 +1,26 @@
 package com.work.calendar.dto;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class ClientJobFilterDTO {
 
 	private Long clientId;
 
+	private Long jobId;
+
 	private Date startDate;
 
 	private Date endDate;
 
-	public ClientJobFilterDTO(Long clientId, Date startDate, Date endDate) {
+	private Calendar calendar;
+
+	public ClientJobFilterDTO(Long clientId, Long jobId, Date startDate, Date endDate, Calendar calendar) {
 		this.clientId = clientId;
+		this.jobId = jobId;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.calendar = calendar;
 	}
 
 	public Long getClientId() {
@@ -38,6 +45,22 @@ public class ClientJobFilterDTO {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public Calendar getCalendar() {
+		return calendar;
+	}
+
+	public void setCalendar(Calendar calendar) {
+		this.calendar = calendar;
+	}
+
+	public Long getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
 	}
 
 }
