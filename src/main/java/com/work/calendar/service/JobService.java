@@ -16,7 +16,7 @@ import com.work.calendar.entity.Job;
 import com.work.calendar.repository.JobRepository;
 
 @Service
-public class JobService  extends CrudService<Job>{
+public class JobService extends CrudService<Job> {
 
 	private Logger log = LoggerFactory.getLogger(JobService.class);
 	@Autowired
@@ -40,10 +40,9 @@ public class JobService  extends CrudService<Job>{
 	public Job addJobType(Job jobType) {
 		if (validateEntity(jobType)) {
 			return jobRepository.save(jobType);
-		} else {
-			log.info("job type is not valid");
-			return null;
 		}
+		log.info("job type is not valid");
+		return null;
 	}
 
 	public List<Job> getJobTypes() {
@@ -54,14 +53,23 @@ public class JobService  extends CrudService<Job>{
 	public JpaRepository<Job, Long> getRepository() {
 		return jobRepository;
 	}
-	
+
 	public Job getJobById(Long id) throws AccountNotFoundException {
-		if(jobRepository.findById(id).get() != null) {
+		if (jobRepository.findById(id).get() != null) {
 			return jobRepository.findById(id).get();
-		}else {
+		} else {
 			throw new AccountNotFoundException("no client account with the id " + id);
 		}
 	}
 
+	public Job editJob(Job newJob) {
+		if (validateEntity(newJob)) {
+			return jobRepository.save(newJob);
+		} else {
+			log.info("job type is not valid");
+			return null;
+		}
+
+	}
 
 }

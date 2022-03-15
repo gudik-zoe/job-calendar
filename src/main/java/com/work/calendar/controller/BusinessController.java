@@ -102,18 +102,12 @@ public class BusinessController {
 		try {
 
 			String myFormat = "yyyy-MM-dd hh:mm:ss";
-
-//			Date theStartDay = java.util.Date.from(firstDay.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(2022, monthsList.indexOf(month), 1);
-//			Date theLastDay = java.util.Date.from(lastDay.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-//			log.info("first day " + theStartDay + " lastDay  " + theLastDay);
 			SimpleDateFormat formatter = new SimpleDateFormat(myFormat, Locale.ENGLISH);
 			Date startDate = startingDate != null ? formatter.parse(startingDate.replace("T", " "))
 					: createStartDate(month);
-//			log.info("start day " + startDate);
 			Date endDate = endingDate != null ? formatter.parse(endingDate.replace("T", " ")) : createEndDate(month);
-//			log.info("endDate" + endingDate);
 			if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
 				throw new Error("dates are not valid");
 			}
@@ -131,10 +125,7 @@ public class BusinessController {
 		int monthindex = monthsList.indexOf(month);
 		calendar.set(2022, monthindex, 1);
 		java.util.Date utilDate = calendar.getTime();
-//		LocalDate firstDay = LocalDate.of(2022, monthindex + 1, 1);
-		log.info("start date " + utilDate);
 		return utilDate;
-
 	}
 
 	private Date createEndDate(String month) {
@@ -142,9 +133,7 @@ public class BusinessController {
 		int monthindex = monthsList.indexOf(month);
 		calendar.set(2022, monthindex, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 		java.util.Date utilDate = calendar.getTime();
-		log.info("last date " + utilDate);
 		return utilDate;
-//		LocalDate lastDay = LocalDate.of(2022, monthindex + 1, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 	}
 
 }

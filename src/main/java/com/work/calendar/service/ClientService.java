@@ -22,11 +22,6 @@ public class ClientService extends CrudService<Client> {
 	@Autowired
 	private ClientRepository clientRepository;
 
-	public boolean validateEntity(ClientDTO entity) {
-		return (entity.getFullName().length() > 3) ? true : false;
-
-	}
-
 	public Client addClient(ClientDTO clientDTO) {
 
 		Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
@@ -64,7 +59,15 @@ public class ClientService extends CrudService<Client> {
 
 	@Override
 	public boolean validateEntity(Client entity) {
-		// TODO Auto-generated method stub
-		return false;
+		return !entity.getFullName().trim().isEmpty() ? true : false;
+	}
+
+	public Client updateClient(Client client) {
+		if(validateEntity(client)) {
+			return clientRepository.save(client);
+		}
+		log.info("error validating client");
+		return null;
+		
 	}
 }
