@@ -3,7 +3,7 @@ package com.work.calendar.dto;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ClientJobFilterDTO {
+public class BusinessFilterDTO {
 
 	private Long clientId;
 
@@ -15,7 +15,7 @@ public class ClientJobFilterDTO {
 
 	private Calendar calendar;
 
-	public ClientJobFilterDTO(Long clientId, Long jobId, Date startDate, Date endDate, Calendar calendar) {
+	public BusinessFilterDTO(Long clientId, Long jobId, Date startDate, Date endDate, Calendar calendar) {
 		this.clientId = clientId;
 		this.jobId = jobId;
 		this.startDate = startDate;

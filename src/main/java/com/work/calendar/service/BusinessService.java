@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +21,13 @@ import org.springframework.stereotype.Service;
 
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDTO;
-import com.work.calendar.dto.BusinessDetailsDTO;
+import com.work.calendar.dto.BusinessFilterDTO;
 import com.work.calendar.dto.BusinessListDTO;
 import com.work.calendar.dto.BusinessSummaryDTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
-import com.work.calendar.dto.ClientJobFilterDTO;
 import com.work.calendar.dto.JobsDetail;
 import com.work.calendar.entity.Business;
 import com.work.calendar.entity.Client;
-import com.work.calendar.entity.Job;
 import com.work.calendar.mappers.BusinessDTOMapper;
 import com.work.calendar.repository.BusinessRepository;
 import com.work.calendar.repository.ClientRepository;
@@ -57,33 +57,40 @@ public class BusinessService extends CrudService<Business> {
 	@Autowired
 	BusinessDTOMapper businessDTOMapper;
 
-	public BusinessDTO findBusinessById(Long businessId) {
+	public BusinessDTO findBusinessDtoById(Long businessId) {
 		Optional<Business> business = businessRepository.findById(businessId);
 		if (business.isPresent()) {
-			log.info("here");
 			return businessDTOMapper.toBusinessDTO(business.get());
 		}
-		log.info("not found");
-		return null;
+		throw new Error("business not found");
 	}
 
-	public BusinessDTO addEntity(BusinessDTO clientJobDTO) throws Exception {
+	public Business findBusinessById(Long businessId) {
+		Optional<Business> business = businessRepository.findById(businessId);
+		if (business.isPresent()) {
+			return business.get();
+		}
+		throw new Error("business not found");
+	}
 
-		Business cj = new Business();
-//		log.info("time difference " +((clientJobDTO.getEndTime().getTime() - clientJobDTO.getStartTime().getTime()) / (1000 * 60 * 60))
-//				+ "hours");
-		cj.setClient(clientService.getClientById(clientJobDTO.getClientId()));
-		cj.setJobtype(jobService.getJobById(clientJobDTO.getJobId()));
-		cj.setTotalHours(getTimedifference(clientJobDTO.getEndTime(), clientJobDTO.getStartTime()));
-		cj.setNote(clientJobDTO.getNote());
-		cj.setStartTime(clientJobDTO.getStartTime());
-		cj.setEndTime(clientJobDTO.getEndTime());
-		cj.setPosition(clientJobDTO.getPosition());
-		cj.setDate(clientJobDTO.getDate());
-		clientJobDTO.setClientFullName(clientJobDTO.getClientFullName());
-		clientJobDTO.setJobDescription(clientJobDTO.getJobDescription());
-		businessRepository.save(cj);
-		return clientJobDTO;
+	public BusinessDTO addEntity(BusinessDTO businessDTO) throws Exception {
+
+		Business business = new Business();
+		Client theClient = clientService.getClientById(businessDTO.getClientId());
+		business.setClient(theClient);
+		business.setJobtype(jobService.getJobById(businessDTO.getJobId()));
+		business.setTotalHours(getTimedifference(businessDTO.getEndTime(), businessDTO.getStartTime()));
+		business.setNote(businessDTO.getNote());
+		business.setStartTime(businessDTO.getStartTime());
+		business.setEndTime(businessDTO.getEndTime());
+		business.setPosition(businessDTO.getPosition());
+		business.setDate(businessDTO.getDate());
+		Business createdBusiness = businessRepository.save(business);
+		businessDTO.setClientFullName(theClient.getFullName());
+		businessDTO.setClientFullName(businessDTO.getClientFullName());
+		businessDTO.setJobDescription(businessDTO.getJobDescription());
+		businessDTO.setBusinessId(createdBusiness.getId());
+		return businessDTO;
 
 	}
 
@@ -97,11 +104,13 @@ public class BusinessService extends CrudService<Business> {
 		throw new Exception("dates are not valid");
 	}
 
-	private boolean validateDto(BusinessDTO clientJobDTO) {
-
-		if (getEntityById(clientJobDTO.getClientId()) != null && getEntityById(clientJobDTO.getJobId()) != null
-				&& clientJobDTO.getStartTime() != null && clientJobDTO.getEndTime() != null) {
+	private boolean validateDto(BusinessDTO businessDTO) {
+		if (businessRepository.findById(businessDTO.getBusinessId()).isPresent()
+				&& clientRepository.findById(businessDTO.getClientId()).isPresent()
+				&& jobRepository.findById(businessDTO.getJobId()).isPresent() && businessDTO.getStartTime() != null
+				&& businessDTO.getEndTime() != null) {
 			return true;
+
 		}
 
 		return false;
@@ -118,7 +127,7 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public Base64DTO getBusinessSummary(ClientJobFilterDTO filter) throws IOException, ParseException {
+	public Base64DTO getBusinessSummary(BusinessFilterDTO filter) throws IOException, ParseException {
 		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(filter));
 		List<Client> relatedClients = new ArrayList<>();
 		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
@@ -174,7 +183,7 @@ public class BusinessService extends CrudService<Business> {
 
 	}
 
-	public Specification<Business> buildSpecificationByClientJob(ClientJobFilterDTO filter) {
+	public Specification<Business> buildSpecificationByClientJob(BusinessFilterDTO filter) {
 		return Specification
 				.where(new GenericSpecification<Business>(filter.getClientId(), "client.id", OperatorEnum.EQUAL)
 						.and(new GenericSpecification<Business>(filter.getJobId(), "job.id", OperatorEnum.EQUAL))
@@ -201,6 +210,21 @@ public class BusinessService extends CrudService<Business> {
 		}
 
 		return resultList;
+	}
+
+	public BusinessDTO editBusiness(Long businesId, BusinessDTO businessDTO) throws AccountNotFoundException {
+		if (validateDto(businessDTO)) {
+			Business requestedBusiness = findBusinessById(businesId);
+			requestedBusiness.setClient(clientService.getClientById(businessDTO.getClientId()));
+			requestedBusiness.setJobtype(jobService.getJobById(businessDTO.getJobId()));
+			requestedBusiness.setStartTime(businessDTO.getStartTime());
+			requestedBusiness.setEndTime(businessDTO.getEndTime());
+			requestedBusiness.setNote(businessDTO.getNote());
+			requestedBusiness.setPosition(businessDTO.getPosition());
+			Business editedBusiness = businessRepository.save(requestedBusiness);
+			return businessDTOMapper.toBusinessDTO(editedBusiness);
+		}
+		throw new Error("invalid business");
 	}
 
 }
