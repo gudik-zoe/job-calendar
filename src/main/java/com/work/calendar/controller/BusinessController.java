@@ -43,6 +43,12 @@ public class BusinessController {
 	private BusinessService businessService;
 	@Value("#{${monthsList}}")
 	private List<String> monthsList;
+	
+	
+	@GetMapping("/hello")
+	public String hello() {
+		return "hello world";
+	}
 
 //	SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
 	@PostMapping("/")
