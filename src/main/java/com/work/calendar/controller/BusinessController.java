@@ -64,9 +64,10 @@ public class BusinessController {
 			@RequestParam(value = "date", required = false) String date,
 			@RequestParam(value = "month", required = true) String month) {
 		try {
-			BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
-					month);
-			return ResponseEntity.ok().body(businessService.getBusinessSummary(clientJobFilterDTO));
+//			BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
+//					month);
+			return ResponseEntity.ok().body(businessService.getBusinessSummary(clientId, jobId, startDate, endDate, date,
+					month));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClientJobSummaryForClientId: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -108,8 +109,6 @@ public class BusinessController {
 	private BusinessFilterDTO buildclientJobFilterDTO(Long clientId, Long jobId, String startingDate,
 			String endingDate, String date, String month) {
 		try {
-
-//			String myFormat = "yyyy-MM-dd hh:mm:ss";
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(2022, monthsList.indexOf(month), 1);
 			SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);

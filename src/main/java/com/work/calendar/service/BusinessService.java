@@ -2,11 +2,13 @@ package com.work.calendar.service;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.security.auth.login.AccountNotFoundException;
@@ -15,6 +17,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -42,20 +45,20 @@ public class BusinessService extends CrudService<Business> {
 
 	@Autowired
 	private BusinessRepository businessRepository;
-
 	@Autowired
 	private JobRepository jobRepository;
-
 	@Autowired
 	private ClientRepository clientRepository;
-
 	@Autowired
 	private ClientService clientService;
-
 	@Autowired
 	private JobService jobService;
 	@Autowired
 	BusinessDTOMapper businessDTOMapper;
+	@Value("#{${monthsList}}")
+	private List<String> monthsList;
+	@Value("${dateformat}")
+	private String dateFormat;
 
 	public BusinessDTO findBusinessDtoById(Long businessId) {
 		Optional<Business> business = businessRepository.findById(businessId);
@@ -127,8 +130,11 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public Base64DTO getBusinessSummary(BusinessFilterDTO filter) throws IOException, ParseException {
-		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(filter));
+	public Base64DTO getBusinessSummary(Long clientId, Long jobId, String startDate, String endDate, String date,
+			String month) throws IOException, ParseException {
+		BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
+				month);
+		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(clientJobFilterDTO));
 		List<Client> relatedClients = new ArrayList<>();
 		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
 		List<ClientBusinessSummaryDTO> businessSummaries = new ArrayList<>();
@@ -166,14 +172,10 @@ public class BusinessService extends CrudService<Business> {
 						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
-			int maxDay = filter.getCalendar().getActualMaximum(Calendar.DAY_OF_MONTH);
-			log.info("size " + businessSummaries.size());
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
 				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(),
-						filter.getCalendar());
+						clientJobFilterDTO.getCalendar());
 				return excelCreator.exportToBase64("summaryFile");
-			} else {
-				log.info("its null");
 			}
 			return null;// return businessSummaryDTO;
 
@@ -225,6 +227,41 @@ public class BusinessService extends CrudService<Business> {
 			return businessDTOMapper.toBusinessDTO(editedBusiness);
 		}
 		throw new Error("invalid business");
+	}
+
+	private BusinessFilterDTO buildclientJobFilterDTO(Long clientId, Long jobId, String startingDate, String endingDate,
+			String date, String month) {
+		try {
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(2022, monthsList.indexOf(month), 1);
+			SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
+			Date startDate = startingDate != null ? formatter.parse(startingDate.replace("T", " "))
+					: createStartDate(calendar, month);
+			Date endDate = endingDate != null ? formatter.parse(endingDate.replace("T", " "))
+					: createEndDate(calendar, month);
+			if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
+				throw new Error("dates are not valid");
+			}
+			BusinessFilterDTO clientJobFilterDTO = new BusinessFilterDTO(clientId, jobId, startDate, endDate, calendar);
+			return clientJobFilterDTO;
+		} catch (Exception e) {
+			log.info("error " + e.getMessage());
+			return null;
+		}
+	}
+	
+	private Date createStartDate(Calendar calendar, String month) {
+		int monthindex = monthsList.indexOf(month);
+		calendar.set(calendar.get(Calendar.YEAR), monthindex, 1);
+		java.util.Date utilDate = calendar.getTime();
+		return utilDate;
+	}
+
+	private Date createEndDate(Calendar calendar, String month) {
+		int monthindex = monthsList.indexOf(month);
+		calendar.set(calendar.get(Calendar.YEAR), monthindex, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+		java.util.Date utilDate = calendar.getTime();
+		return utilDate;
 	}
 
 }
