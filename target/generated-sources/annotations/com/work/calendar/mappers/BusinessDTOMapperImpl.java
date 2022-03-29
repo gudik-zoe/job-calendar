@@ -1,0 +1,99 @@
+package com.work.calendar.mappers;
+
+import com.work.calendar.dto.BusinessDTO;
+import com.work.calendar.entity.Business;
+import com.work.calendar.entity.Client;
+import com.work.calendar.entity.Job;
+import javax.annotation.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2022-03-29T23:23:25+0200",
+    comments = "version: 1.3.0.Final, compiler: javac, environment: Java 1.8.0_202 (Oracle Corporation)"
+)
+@Component
+public class BusinessDTOMapperImpl implements BusinessDTOMapper {
+
+    @Override
+    public BusinessDTO toBusinessDTO(Business business) {
+        if ( business == null ) {
+            return null;
+        }
+
+        BusinessDTO businessDTO = new BusinessDTO();
+
+        businessDTO.setBusinessId( business.getId() );
+        businessDTO.setJobId( businessJobId( business ) );
+        businessDTO.setJobDescription( businessJobDescription( business ) );
+        businessDTO.setClientId( businessClientId( business ) );
+        businessDTO.setClientFullName( businessClientFullName( business ) );
+        businessDTO.setNote( business.getNote() );
+        businessDTO.setPosition( business.getPosition() );
+        businessDTO.setDate( business.getDate() );
+        businessDTO.setStartTime( business.getStartTime() );
+        businessDTO.setEndTime( business.getEndTime() );
+
+        return businessDTO;
+    }
+
+    private Long businessJobId(Business business) {
+        if ( business == null ) {
+            return null;
+        }
+        Job job = business.getJob();
+        if ( job == null ) {
+            return null;
+        }
+        Long id = job.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    private String businessJobDescription(Business business) {
+        if ( business == null ) {
+            return null;
+        }
+        Job job = business.getJob();
+        if ( job == null ) {
+            return null;
+        }
+        String description = job.getDescription();
+        if ( description == null ) {
+            return null;
+        }
+        return description;
+    }
+
+    private Long businessClientId(Business business) {
+        if ( business == null ) {
+            return null;
+        }
+        Client client = business.getClient();
+        if ( client == null ) {
+            return null;
+        }
+        Long id = client.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    private String businessClientFullName(Business business) {
+        if ( business == null ) {
+            return null;
+        }
+        Client client = business.getClient();
+        if ( client == null ) {
+            return null;
+        }
+        String fullName = client.getFullName();
+        if ( fullName == null ) {
+            return null;
+        }
+        return fullName;
+    }
+}
