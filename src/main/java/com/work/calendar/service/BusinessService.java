@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.work.calendar.Constants;
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.dto.BusinessFilterDTO;
@@ -55,9 +56,9 @@ public class BusinessService extends CrudService<Business> {
 	private JobService jobService;
 	@Autowired
 	BusinessDTOMapper businessDTOMapper;
-	@Value("#{${monthsList}}")
-	private List<String> monthsList;
-	@Value("${dateformat}")
+//	@Value("#{${monthsList}}")
+//	private List<String> monthsList
+	@Value("${dateformat:yyyy-MM-dd hh:mm:ss}")
 	private String dateFormat;
 
 	public BusinessDTO findBusinessDtoById(Long businessId) {
@@ -233,7 +234,7 @@ public class BusinessService extends CrudService<Business> {
 			String date, String month) {
 		try {
 			Calendar calendar = Calendar.getInstance();
-			calendar.set(2022, monthsList.indexOf(month), 1);
+			calendar.set(2022, exportMonthList().indexOf(month), 1);
 			SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
 			Date startDate = startingDate != null ? formatter.parse(startingDate.replace("T", " "))
 					: createStartDate(calendar, month);
@@ -249,16 +250,34 @@ public class BusinessService extends CrudService<Business> {
 			return null;
 		}
 	}
+	public List<String> exportMonthList(){
+		List<String> monthsList = new ArrayList<>();
+		monthsList.add("Giennaio");
+		monthsList.add("Febbraio");
+		monthsList.add("Marzo");
+		monthsList.add("Aprile");
+		monthsList.add("Maggio");
+		monthsList.add("Giugno");
+		monthsList.add("Luglio");
+		monthsList.add("Agosto");
+		monthsList.add("Settembre");
+		monthsList.add("Ottobre");
+		monthsList.add("Novembre");
+		monthsList.add("Dicembre");
+		return monthsList;
+		
+	}
 	
 	private Date createStartDate(Calendar calendar, String month) {
-		int monthindex = monthsList.indexOf(month);
+		
+		int monthindex = exportMonthList().indexOf(month);
 		calendar.set(calendar.get(Calendar.YEAR), monthindex, 1);
 		java.util.Date utilDate = calendar.getTime();
 		return utilDate;
 	}
 
 	private Date createEndDate(Calendar calendar, String month) {
-		int monthindex = monthsList.indexOf(month);
+		int monthindex = exportMonthList().indexOf(month);
 		calendar.set(calendar.get(Calendar.YEAR), monthindex, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 		java.util.Date utilDate = calendar.getTime();
 		return utilDate;
