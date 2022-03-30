@@ -37,12 +37,9 @@ public class BusinessController {
 //	private final String dateFormat2 = "yyyy-MM-dd HH:mm:ss.ssssss";
 //	private final String standardDate = "yyyy-mm-dd";
 
-	@Value("${dateformat}")
-	private String dateFormat;
+
 	@Autowired
 	private BusinessService businessService;
-	@Value("#{${monthsList}}")
-	private List<String> monthsList;
 	
 	
 	@GetMapping("/hello")
@@ -112,40 +109,40 @@ public class BusinessController {
 		}
 	}
 
-	private BusinessFilterDTO buildclientJobFilterDTO(Long clientId, Long jobId, String startingDate,
-			String endingDate, String date, String month) {
-		try {
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(2022, monthsList.indexOf(month), 1);
-			SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
-			Date startDate = startingDate != null ? formatter.parse(startingDate.replace("T", " "))
-					: createStartDate(calendar, month);
-			Date endDate = endingDate != null ? formatter.parse(endingDate.replace("T", " "))
-					: createEndDate(calendar, month);
-			if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
-				throw new Error("dates are not valid");
-			}
-			BusinessFilterDTO clientJobFilterDTO = new BusinessFilterDTO(clientId, jobId, startDate, endDate,
-					calendar);
-			return clientJobFilterDTO;
-		} catch (Exception e) {
-			log.info("error " + e.getMessage());
-			return null;
-		}
-	}
-
-	private Date createStartDate(Calendar calendar, String month) {
-		int monthindex = monthsList.indexOf(month);
-		calendar.set(calendar.get(Calendar.YEAR), monthindex, 1);
-		java.util.Date utilDate = calendar.getTime();
-		return utilDate;
-	}
-
-	private Date createEndDate(Calendar calendar, String month) {
-		int monthindex = monthsList.indexOf(month);
-		calendar.set(calendar.get(Calendar.YEAR), monthindex, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-		java.util.Date utilDate = calendar.getTime();
-		return utilDate;
-	}
+//	private BusinessFilterDTO buildclientJobFilterDTO(Long clientId, Long jobId, String startingDate,
+//			String endingDate, String date, String month) {
+//		try {
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.set(2022, monthsList.indexOf(month), 1);
+//			SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
+//			Date startDate = startingDate != null ? formatter.parse(startingDate.replace("T", " "))
+//					: createStartDate(calendar, month);
+//			Date endDate = endingDate != null ? formatter.parse(endingDate.replace("T", " "))
+//					: createEndDate(calendar, month);
+//			if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
+//				throw new Error("dates are not valid");
+//			}
+//			BusinessFilterDTO clientJobFilterDTO = new BusinessFilterDTO(clientId, jobId, startDate, endDate,
+//					calendar);
+//			return clientJobFilterDTO;
+//		} catch (Exception e) {
+//			log.info("error " + e.getMessage());
+//			return null;
+//		}
+//	}
+//
+//	private Date createStartDate(Calendar calendar, String month) {
+//		int monthindex = monthsList.indexOf(month);
+//		calendar.set(calendar.get(Calendar.YEAR), monthindex, 1);
+//		java.util.Date utilDate = calendar.getTime();
+//		return utilDate;
+//	}
+//
+//	private Date createEndDate(Calendar calendar, String month) {
+//		int monthindex = monthsList.indexOf(month);
+//		calendar.set(calendar.get(Calendar.YEAR), monthindex, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+//		java.util.Date utilDate = calendar.getTime();
+//		return utilDate;
+//	}
 
 }
