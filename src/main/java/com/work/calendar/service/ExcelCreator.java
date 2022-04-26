@@ -104,7 +104,6 @@ public class ExcelCreator {
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
 			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
-				log.info("row number " + row);
 				row.setRowStyle(ExcelStyle.valueStyle(workbook));
 				int columnCount = 0;
 				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(),
@@ -122,7 +121,7 @@ public class ExcelCreator {
 					if (map.containsKey(day)) {
 						totalDayMap.put(day, totalDayMap.get(day) + map.get(day));
 						total += map.get(day);
-						createCell(row, columnCount++, df.format(map.get(day)), getStyleFromDay(day));
+						createCell(row, columnCount++,  df.format(map.get(day)), getStyleFromDay(day));
 					} else {
 						totalDayMap.put(day, totalDayMap.get(day) + 0.0);
 						createCell(row, columnCount++, null, getStyleFromDay(day));
@@ -140,8 +139,7 @@ public class ExcelCreator {
 	}
 
 	private void insertTotalDaysHoursColumn(Map<Integer, Double> totalDayMap , Integer rowCount) throws ParseException {
-	
-		log.info("theColumnCount " + rowCount);
+
 		Row lastRow = sheet.createRow(rowCount);
 		int columnCount = 3;
 		createCell(lastRow, columnCount++, "TOTALI", ExcelStyle.headerStyle(workbook));

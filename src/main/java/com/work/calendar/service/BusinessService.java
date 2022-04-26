@@ -22,7 +22,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import com.work.calendar.Constants;
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.dto.BusinessFilterDTO;
@@ -78,7 +77,6 @@ public class BusinessService extends CrudService<Business> {
 	}
 
 	public BusinessDTO addEntity(BusinessDTO businessDTO) throws Exception {
-
 		Business business = new Business();
 		Client theClient = clientService.getClientById(businessDTO.getClientId());
 		business.setClient(theClient);
@@ -131,8 +129,8 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public Base64DTO getBusinessSummary(Long clientId, Long jobId, String startDate, String endDate, String date,
-			String month) throws IOException, ParseException {
+	public Base64DTO getBusinessSummary(Long clientId, Long jobId, String startDate, String endDate,
+			String date, String month) throws IOException, ParseException {
 		BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
 				month);
 		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(clientJobFilterDTO));
@@ -160,7 +158,12 @@ public class BusinessService extends CrudService<Business> {
 							List<JobsDetail> jobsDetails = new ArrayList<>();
 							jobsDetails.add(new JobsDetail(businesRecord.getTotalHours(), businesRecord.getDate()));
 							businessSummary.getJobs().put(businesRecord.getJob().getDescription(), jobsDetails);
-						} else {
+						} 
+						else if (businessSummary.getJobs().containsKey(businesRecord.getJob().getDescription()) && getListDays(businessSummary.getJobs().get(businesRecord.getJob().getDescription())).contains(getDayOfDate(businesRecord.getDate()))) {
+							JobsDetail theRepeatedJob = getJobDetailByDay(businessSummary.getJobs().get(businesRecord.getJob().getDescription()) , getDayOfDate(businesRecord.getDate()));
+							theRepeatedJob.setJobDuration(theRepeatedJob.getJobDuration() + businesRecord.getTotalHours());
+					} 
+						else {
 							businessSummary.getJobs().get(businesRecord.getJob().getDescription())
 									.add(new JobsDetail(businesRecord.getTotalHours(), businesRecord.getDate()));
 						}
@@ -173,17 +176,45 @@ public class BusinessService extends CrudService<Business> {
 						.setTotalHours(businessSummaryDTO.getTotalHours() + businessSummary.getTotalHoursForClient());
 			}
 			businessSummaryDTO.setClientBusinessSummaryDTO(businessSummaries);
+//			return businessSummaryDTO;
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
 				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(),
 						clientJobFilterDTO.getCalendar());
 				return excelCreator.exportToBase64("summaryFile");
 			}
-			return null;// return businessSummaryDTO;
+//			return null;// return businessSummaryDTO;
 
 		}
 		log.info("it's empty");
 		return null;
 
+	}
+
+	private int getDayOfDate(Date date) {
+	
+		Calendar jobcalendar = Calendar.getInstance();
+		jobcalendar.setTime(date);
+		int jobcalendarDay = jobcalendar.get(jobcalendar.DAY_OF_MONTH);
+		return jobcalendarDay;
+
+	}	
+	private List<Integer> getListDays(List<JobsDetail> list) {
+	List<Integer> days = new ArrayList<>();
+		for(JobsDetail jobsDetail:list) {
+			days.add(getDayOfDate(jobsDetail.getDate()));
+		}
+		return days;
+	}
+	
+	private JobsDetail getJobDetailByDay(List<JobsDetail> list , int day) {
+		for(JobsDetail jobDetail:list) {
+			int theDay = getDayOfDate(jobDetail.getDate());
+			if(theDay == day) {
+				return jobDetail;
+			}
+		}
+		return null;
+		
 	}
 
 	public Specification<Business> buildSpecificationByClientJob(BusinessFilterDTO filter) {
@@ -250,7 +281,8 @@ public class BusinessService extends CrudService<Business> {
 			return null;
 		}
 	}
-	public List<String> exportMonthList(){
+
+	public List<String> exportMonthList() {
 		List<String> monthsList = new ArrayList<>();
 		monthsList.add("Giennaio");
 		monthsList.add("Febbraio");
@@ -265,11 +297,11 @@ public class BusinessService extends CrudService<Business> {
 		monthsList.add("Novembre");
 		monthsList.add("Dicembre");
 		return monthsList;
-		
+
 	}
-	
+
 	private Date createStartDate(Calendar calendar, String month) {
-		
+
 		int monthindex = exportMonthList().indexOf(month);
 		calendar.set(calendar.get(Calendar.YEAR), monthindex, 1);
 		java.util.Date utilDate = calendar.getTime();

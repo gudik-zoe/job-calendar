@@ -33,21 +33,14 @@ public class BusinessController {
 
 	private Logger log = LoggerFactory.getLogger(BusinessController.class);
 
-//	private final String dateFormat = "yyyy-MM-dd HH:MM:SS";
-//	private final String dateFormat2 = "yyyy-MM-dd HH:mm:ss.ssssss";
-//	private final String standardDate = "yyyy-mm-dd";
-
-
 	@Autowired
 	private BusinessService businessService;
-	
-	
+
 	@GetMapping("/hello")
 	public String hello() {
 		return "hello world";
 	}
 
-//	SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
 	@PostMapping("/")
 	public ResponseEntity<?> addBusiness(@RequestBody BusinessDTO clientJobDTO) {
 		try {
@@ -69,8 +62,8 @@ public class BusinessController {
 		try {
 //			BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
 //					month);
-			return ResponseEntity.ok().body(businessService.getBusinessSummary(clientId, jobId, startDate, endDate, date,
-					month));
+			return ResponseEntity.ok()
+					.body(businessService.getBusinessSummary(clientId, jobId, startDate, endDate, date, month));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClientJobSummaryForClientId: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -98,11 +91,11 @@ public class BusinessController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
-	
+
 	@PutMapping("/{id}")
-	public ResponseEntity<?> editBusiness(@PathVariable Long id ,@RequestBody BusinessDTO businessDTO) {
+	public ResponseEntity<?> editBusiness(@PathVariable Long id, @RequestBody BusinessDTO businessDTO) {
 		try {
-			return ResponseEntity.ok().body(businessService.editBusiness(id ,businessDTO));
+			return ResponseEntity.ok().body(businessService.editBusiness(id, businessDTO));
 		} catch (Exception e) {
 			log.error("EXCEPTION on editBusiness: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));

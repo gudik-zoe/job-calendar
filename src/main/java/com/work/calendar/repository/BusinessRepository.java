@@ -14,5 +14,9 @@ public interface BusinessRepository extends JpaRepository<Business, Long>, JpaSp
 
 	@Query("SELECT b FROM Business b where CAST(b.date AS date)= CAST(:date AS date)")
 	List<Business> getBusinessOnDate(@Param(value = "date") Date date);
+	
+	@Query("SELECT b FROM Business b where CAST(b.date AS date)= CAST(:date AS date) and b.client.id=:clientId and b.job.id=:jobId")
+	Business checkIfBusinessGotDoubled(@Param(value = "clientId") Long clientId, @Param(value = "jobId") Long jobId,
+			@Param(value = "date") Date date);
 
 }
