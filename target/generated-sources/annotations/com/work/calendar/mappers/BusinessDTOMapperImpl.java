@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2022-04-21T21:17:19+0200",
-    comments = "version: 1.3.0.Final, compiler: Eclipse JDT (IDE) 1.3.1200.v20200916-0645, environment: Java 15.0.2 (Oracle Corporation)"
+    date = "2022-04-27T09:27:14+0200",
+    comments = "version: 1.3.0.Final, compiler: Eclipse JDT (IDE) 1.4.100.v20220318-0906, environment: Java 17.0.2 (Eclipse Adoptium)"
 )
 @Component
 public class BusinessDTOMapperImpl implements BusinessDTOMapper {

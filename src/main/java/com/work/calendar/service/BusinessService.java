@@ -31,6 +31,7 @@ import com.work.calendar.dto.ClientBusinessSummaryDTO;
 import com.work.calendar.dto.JobsDetail;
 import com.work.calendar.entity.Business;
 import com.work.calendar.entity.Client;
+import com.work.calendar.entity.Job;
 import com.work.calendar.mappers.BusinessDTOMapper;
 import com.work.calendar.repository.BusinessRepository;
 import com.work.calendar.repository.ClientRepository;
@@ -79,8 +80,9 @@ public class BusinessService extends CrudService<Business> {
 	public BusinessDTO addEntity(BusinessDTO businessDTO) throws Exception {
 		Business business = new Business();
 		Client theClient = clientService.getClientById(businessDTO.getClientId());
+		Job theJob = jobService.getJobById(businessDTO.getJobId());
 		business.setClient(theClient);
-		business.setJobtype(jobService.getJobById(businessDTO.getJobId()));
+		business.setJobtype(theJob);
 		business.setTotalHours(getTimedifference(businessDTO.getEndTime(), businessDTO.getStartTime()));
 		business.setNote(businessDTO.getNote());
 		business.setStartTime(businessDTO.getStartTime());
@@ -90,7 +92,7 @@ public class BusinessService extends CrudService<Business> {
 		Business createdBusiness = businessRepository.save(business);
 		businessDTO.setClientFullName(theClient.getFullName());
 		businessDTO.setClientFullName(businessDTO.getClientFullName());
-		businessDTO.setJobDescription(businessDTO.getJobDescription());
+		businessDTO.setJobDescription(theJob.getDescription());
 		businessDTO.setBusinessId(createdBusiness.getId());
 		return businessDTO;
 
