@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
@@ -28,7 +29,7 @@ import com.work.calendar.utility.ExcelStyle;
 
 public class ExcelCreator {
 	private Logger log = LoggerFactory.getLogger(ExcelCreator.class);
-
+	
 	private XSSFWorkbook workbook;
 	private XSSFSheet sheet;
 	private List<ClientBusinessSummaryDTO> result;
@@ -76,6 +77,7 @@ public class ExcelCreator {
 	public void writeHeaderLine() throws ParseException {
 		sheet = workbook.createSheet("summary");
 		Row firstRow = sheet.createRow(0);
+
 		createCell(firstRow, 18, calendar.getDisplayName(calendar.MONTH, calendar.LONG, Locale.getDefault()),
 				ExcelStyle.headerStyle(workbook));
 		Row row = sheet.createRow(1);
@@ -104,7 +106,7 @@ public class ExcelCreator {
 		for (ClientBusinessSummaryDTO clientBusinessSummaryDTO : result) {
 			for (Map.Entry<String, List<JobsDetail>> entry : clientBusinessSummaryDTO.getJobs().entrySet()) {
 				Row row = sheet.createRow(rowCount++);
-				row.setRowStyle(ExcelStyle.valueStyle(workbook));
+//				row.setRowStyle(ExcelStyle.valueStyle(workbook));
 				int columnCount = 0;
 				createCell(row, columnCount++, clientBusinessSummaryDTO.getClientName(),
 						ExcelStyle.valueStyle(workbook));
