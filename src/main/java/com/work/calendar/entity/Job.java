@@ -3,16 +3,18 @@ package com.work.calendar.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "job")
-public class Job  implements Serializable{
+public class Job implements Serializable {
 	/**
 	 * 
 	 */
@@ -20,12 +22,15 @@ public class Job  implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "job_id")
 	private Long id;
 
 	private String description;
 
 	private Date timeStamp;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_user", referencedColumnName = "id", nullable = false)
+	private User user;
 
 	public Job() {
 
@@ -58,6 +63,14 @@ public class Job  implements Serializable{
 
 	public void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 }

@@ -25,7 +25,6 @@ public class Business implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -47,6 +46,10 @@ public class Business implements Serializable {
 	private String note;
 
 	private String position;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_user", referencedColumnName = "id", nullable = false)
+	private User user;
 
 	public Business() {
 
@@ -134,6 +137,18 @@ public class Business implements Serializable {
 
 	public void setTotalHours(double totalHours) {
 		this.totalHours = totalHours;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public void setJob(Job job) {
+		this.job = job;
 	}
 
 }
