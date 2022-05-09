@@ -25,28 +25,28 @@ public class User implements Serializable {
 
 	private String fullName;
 	private String email;
-	private String passsword;
+	private String password;
 
 //	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Client> clients;
 
 //	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-	@OneToMany(fetch = FetchType.LAZY , mappedBy = "user")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Job> jobs;
 
 //	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-	@OneToMany(fetch = FetchType.LAZY , mappedBy = "user")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Business> businessList;
 
 	public User() {
 
 	}
 
-	public User(String fullName, String email, String passsword) {
+	public User(String fullName, String email, String password) {
 		this.fullName = fullName;
 		this.email = email;
-		this.passsword = passsword;
+		this.password = password;
 	}
 
 	public String getFullName() {
@@ -65,12 +65,12 @@ public class User implements Serializable {
 		this.email = email;
 	}
 
-	public String getPasssword() {
-		return passsword;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setPasssword(String passsword) {
-		this.passsword = passsword;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public Long getId() {

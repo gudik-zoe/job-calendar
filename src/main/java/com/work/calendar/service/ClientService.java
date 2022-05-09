@@ -23,9 +23,7 @@ public class ClientService extends CrudService<Client> {
 	private ClientRepository clientRepository;
 
 	public Client addClient(ClientDTO clientDTO) {
-
 		Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
-		log.info("setting creation date in service " + clientDTO.getColor());
 		clientRepository.save(client);
 		return client;
 
