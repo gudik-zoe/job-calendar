@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.work.calendar.aspect.UserHelper;
+import com.work.calendar.aspect.WorkCalendarAPI;
 import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.dto.BusinessFilterDTO;
 import com.work.calendar.service.BusinessService;
@@ -42,9 +46,10 @@ public class BusinessController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<?> addBusiness(@RequestBody BusinessDTO clientJobDTO) {
+	@WorkCalendarAPI
+	public ResponseEntity<?> addBusiness(HttpServletRequest request, UserHelper userHelper ,@RequestBody BusinessDTO clientJobDTO) {
 		try {
-			return ResponseEntity.ok().body(businessService.addEntity(clientJobDTO));
+			return ResponseEntity.ok().body(businessService.addEntity(userHelper ,clientJobDTO));
 		} catch (Exception e) {
 			log.error("EXCEPTION on addBusiness: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -52,7 +57,9 @@ public class BusinessController {
 	}
 
 	@GetMapping("/summary")
+	@WorkCalendarAPI
 	public ResponseEntity<?> getBusinessSummaryForClientId(
+			HttpServletRequest request, UserHelper userHelper,
 			@RequestParam(value = "clientId", required = false) Long clientId,
 			@RequestParam(value = "jobId", required = false) Long jobId,
 			@RequestParam(value = "startDate", required = false) String startDate,
@@ -63,7 +70,7 @@ public class BusinessController {
 //			BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
 //					month);
 			return ResponseEntity.ok()
-					.body(businessService.getBusinessSummary(clientId, jobId, startDate, endDate, date, month));
+					.body(businessService.getBusinessSummary(userHelper ,clientId, jobId, startDate, endDate, date, month));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClientJobSummaryForClientId: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -93,9 +100,9 @@ public class BusinessController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> editBusiness(@PathVariable Long id, @RequestBody BusinessDTO businessDTO) {
+	public ResponseEntity<?> editBusiness(HttpServletRequest request, UserHelper userHelper,@PathVariable Long id, @RequestBody BusinessDTO businessDTO) {
 		try {
-			return ResponseEntity.ok().body(businessService.editBusiness(id, businessDTO));
+			return ResponseEntity.ok().body(businessService.editBusiness(userHelper ,id, businessDTO));
 		} catch (Exception e) {
 			log.error("EXCEPTION on editBusiness: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));

@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.dto.BusinessFilterDTO;
@@ -32,7 +33,7 @@ import com.work.calendar.dto.JobsDetail;
 import com.work.calendar.entity.Business;
 import com.work.calendar.entity.Client;
 import com.work.calendar.entity.Job;
-import com.work.calendar.mappers.BusinessDTOMapper;
+import com.work.calendar.mappers.EntityMapper;
 import com.work.calendar.repository.BusinessRepository;
 import com.work.calendar.repository.ClientRepository;
 import com.work.calendar.repository.JobRepository;
@@ -55,7 +56,7 @@ public class BusinessService extends CrudService<Business> {
 	@Autowired
 	private JobService jobService;
 	@Autowired
-	BusinessDTOMapper businessDTOMapper;
+	EntityMapper businessDTOMapper;
 //	@Value("#{${monthsList}}")
 //	private List<String> monthsList
 	@Value("${dateformat:yyyy-MM-dd hh:mm:ss}")
@@ -77,9 +78,9 @@ public class BusinessService extends CrudService<Business> {
 		throw new Error("business not found");
 	}
 
-	public BusinessDTO addEntity(BusinessDTO businessDTO) throws Exception {
+	public BusinessDTO addEntity(UserHelper userHelper ,BusinessDTO businessDTO) throws Exception {
 		Business business = new Business();
-		Client theClient = clientService.getClientById(businessDTO.getClientId());
+		Client theClient = clientService.getClientById(userHelper ,businessDTO.getClientId());
 		Job theJob = jobService.getJobById(businessDTO.getJobId());
 		business.setClient(theClient);
 		business.setJobtype(theJob);
@@ -89,11 +90,13 @@ public class BusinessService extends CrudService<Business> {
 		business.setEndTime(businessDTO.getEndTime());
 		business.setPosition(businessDTO.getPosition());
 		business.setDate(businessDTO.getDate());
+		business.setUserId(userHelper.getId());
 		Business createdBusiness = businessRepository.save(business);
 		businessDTO.setClientFullName(theClient.getFullName());
 		businessDTO.setClientFullName(businessDTO.getClientFullName());
 		businessDTO.setJobDescription(theJob.getDescription());
 		businessDTO.setBusinessId(createdBusiness.getId());
+		businessDTO.setUserId(userHelper.getId());
 		return businessDTO;
 
 	}
@@ -131,9 +134,9 @@ public class BusinessService extends CrudService<Business> {
 		return false;
 	}
 
-	public Base64DTO getBusinessSummary(Long clientId, Long jobId, String startDate, String endDate,
+	public Base64DTO getBusinessSummary(UserHelper userHelper , Long clientId, Long jobId, String startDate, String endDate,
 			String date, String month) throws IOException, ParseException {
-		BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(clientId, jobId, startDate, endDate, date,
+		BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(userHelper, clientId, jobId, startDate, endDate, date,
 				month);
 		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(clientJobFilterDTO));
 		List<Client> relatedClients = new ArrayList<>();
@@ -222,6 +225,7 @@ public class BusinessService extends CrudService<Business> {
 	public Specification<Business> buildSpecificationByClientJob(BusinessFilterDTO filter) {
 		return Specification
 				.where(new GenericSpecification<Business>(filter.getClientId(), "client.id", OperatorEnum.EQUAL)
+						.and(new GenericSpecification<Business>(filter.getUserId(), "userId", OperatorEnum.EQUAL))
 						.and(new GenericSpecification<Business>(filter.getJobId(), "job.id", OperatorEnum.EQUAL))
 						.and(new GenericSpecification<Business>(filter.getStartDate(), "date", OperatorEnum.DATE_AFTER))
 						.and(new GenericSpecification<Business>(filter.getEndDate(), "date",
@@ -248,10 +252,10 @@ public class BusinessService extends CrudService<Business> {
 		return resultList;
 	}
 
-	public BusinessDTO editBusiness(Long businesId, BusinessDTO businessDTO) throws AccountNotFoundException {
+	public BusinessDTO editBusiness(UserHelper userHelper,Long businesId, BusinessDTO businessDTO) throws AccountNotFoundException {
 		if (validateDto(businessDTO)) {
 			Business requestedBusiness = findBusinessById(businesId);
-			requestedBusiness.setClient(clientService.getClientById(businessDTO.getClientId()));
+			requestedBusiness.setClient(clientService.getClientById(userHelper ,businessDTO.getClientId()));
 			requestedBusiness.setJobtype(jobService.getJobById(businessDTO.getJobId()));
 			requestedBusiness.setStartTime(businessDTO.getStartTime());
 			requestedBusiness.setEndTime(businessDTO.getEndTime());
@@ -263,7 +267,7 @@ public class BusinessService extends CrudService<Business> {
 		throw new Error("invalid business");
 	}
 
-	private BusinessFilterDTO buildclientJobFilterDTO(Long clientId, Long jobId, String startingDate, String endingDate,
+	private BusinessFilterDTO buildclientJobFilterDTO(UserHelper userHelper , Long clientId, Long jobId, String startingDate, String endingDate,
 			String date, String month) {
 		try {
 			Calendar calendar = Calendar.getInstance();
@@ -276,7 +280,7 @@ public class BusinessService extends CrudService<Business> {
 			if (startDate != null && endDate != null && endDate.getTime() < startDate.getTime()) {
 				throw new Error("dates are not valid");
 			}
-			BusinessFilterDTO clientJobFilterDTO = new BusinessFilterDTO(clientId, jobId, startDate, endDate, calendar);
+			BusinessFilterDTO clientJobFilterDTO = new BusinessFilterDTO(clientId, jobId,userHelper.getId(), startDate, endDate, calendar);
 			return clientJobFilterDTO;
 		} catch (Exception e) {
 			log.info("error " + e.getMessage());

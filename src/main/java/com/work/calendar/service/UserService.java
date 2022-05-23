@@ -22,6 +22,7 @@ import com.work.calendar.dto.TokenDto;
 import com.work.calendar.dto.UserTokenInfo;
 import com.work.calendar.entity.User;
 import com.work.calendar.exceptions.BadRequestException;
+import com.work.calendar.exceptions.MyPlatformException;
 import com.work.calendar.exceptions.NotFoundException;
 import com.work.calendar.repository.UserRepository;
 
@@ -34,8 +35,10 @@ public class UserService {
 	private Logger log = LoggerFactory.getLogger(UserService.class);
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private TokenService tokenService;
 	
-	private final String secret = "u7x!A%C*F-JaNdRg";
+
 
 	public User getUserById(Long id) throws NotFound {
 		if (userRepository.findById(id).isPresent()) {
@@ -50,7 +53,7 @@ public class UserService {
 			user.setPassword(encoder.encode(user.getPassword()));
 			return userRepository.save(user);
 		}
-		throw new BadRequestException("invalid user");
+		throw new MyPlatformException("insert valid user");
 
 	}
 
@@ -70,48 +73,16 @@ public class UserService {
 		throw new BadRequestException("invalid password");
 	}
 	
-	public  String encryptValue(Object tokenJPRequestDto) throws Exception {
-		try {
-			final JsonWebEncryption jwe = new JsonWebEncryption();
-			ObjectMapper mapper = new ObjectMapper();
-			Key key = new AesKey(secret.getBytes());
-			jwe.setKey(key);
-			jwe.setPayload(mapper.writeValueAsString(tokenJPRequestDto));
-			jwe.enableDefaultCompression();
-			jwe.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.DIRECT);
-			jwe.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_128_GCM);
-			return jwe.getCompactSerialization();
-		} catch (final Exception e) {
-			log.error("Exception in encryptValue: " + e.getMessage());
-		}
-		return null;
-	}
 	
 	
-	public  String buildToken(HashMap<String, Object> addedValues, String secret){
-		String token = Jwts.builder().setClaims(addedValues).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
-				.signWith(SignatureAlgorithm.HS512, secret.getBytes()).compact();
-		return token;
-	}
-	
-	
-	public TokenDto createToken(User user) throws Exception {
-		UserTokenInfo userTokenInfo = new UserTokenInfo(user.getId(), user.getFullName());
-		HashMap<String, Object> addedValues = new HashMap<String, Object>();
-		addedValues.put("data", encryptValue(userTokenInfo));
-		String token = buildToken(addedValues , secret);
-		TokenDto tokenDto = new TokenDto(token , null);
-		return tokenDto;
-	}
+
 
 	public TokenDto login(LoginDto loginDto) throws Exception {
 		User theUser = userRepository.findUserByEmail(loginDto.getEmail());
-		System.out.println("user!!! " + theUser);
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		boolean check = encoder.matches(loginDto.getPassword(), theUser.getPassword());
 		if(theUser != null && check) {
-			TokenDto tokenDto = createToken(theUser);
+			TokenDto tokenDto = tokenService.createToken(theUser);
 			return tokenDto;
 		}
 		throw new BadRequestException("invalid credentials");

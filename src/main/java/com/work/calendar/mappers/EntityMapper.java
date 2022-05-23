@@ -8,11 +8,17 @@ import com.work.calendar.dto.BusinessDTO;
 import com.work.calendar.entity.Business;
 
 @Mapper(componentModel = "spring")
-public interface BusinessDTOMapper {
+public interface EntityMapper {
 
 	@Mappings({ @Mapping(target = "businessId", source = "id"), @Mapping(target = "clientId", source = "client.id"),
 			@Mapping(target = "jobId", source = "job.id"),
 			@Mapping(target = "jobDescription", source = "job.description"),
 			@Mapping(target = "clientFullName", source = "client.fullName") })
 	BusinessDTO toBusinessDTO(Business business);
+	
+	
+	
+	
+	
+	
 }

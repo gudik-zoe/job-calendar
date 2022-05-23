@@ -8,6 +8,8 @@ public class BusinessFilterDTO {
 	private Long clientId;
 
 	private Long jobId;
+	
+	private Long userId;
 
 	private Date startDate;
 
@@ -15,9 +17,12 @@ public class BusinessFilterDTO {
 
 	private Calendar calendar;
 
-	public BusinessFilterDTO(Long clientId, Long jobId, Date startDate, Date endDate, Calendar calendar) {
+
+
+	public BusinessFilterDTO(Long clientId, Long jobId, Long userId, Date startDate, Date endDate, Calendar calendar) {
 		this.clientId = clientId;
 		this.jobId = jobId;
+		this.userId = userId;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.calendar = calendar;
@@ -62,5 +67,15 @@ public class BusinessFilterDTO {
 	public void setJobId(Long jobId) {
 		this.jobId = jobId;
 	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+	
+	
 
 }

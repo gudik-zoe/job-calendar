@@ -47,9 +47,12 @@ public class Business implements Serializable {
 
 	private String position;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_user", referencedColumnName = "id", nullable = false)
-	private User user;
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@JoinColumn(name = "id_user", referencedColumnName = "id", nullable = false)
+//	private User user;
+
+	@Column(name = "user_id")
+	private Long userId;
 
 	public Business() {
 
@@ -139,12 +142,12 @@ public class Business implements Serializable {
 		this.totalHours = totalHours;
 	}
 
-	public User getUser() {
-		return user;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public void setJob(Job job) {

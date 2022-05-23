@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.entity.Client;
 import com.work.calendar.entity.Job;
 import com.work.calendar.repository.JobRepository;
@@ -37,8 +38,9 @@ public class JobService extends CrudService<Job> {
 
 	}
 
-	public Job addJobType(Job jobType) {
+	public Job addJobType(UserHelper userHelper ,Job jobType) {
 		if (validateEntity(jobType)) {
+			jobType.setUserId(userHelper.getId());
 			return jobRepository.save(jobType);
 		}
 		log.info("job type is not valid");
@@ -70,6 +72,10 @@ public class JobService extends CrudService<Job> {
 			return null;
 		}
 
+	}
+
+	public List<Job> getJobsForUser(UserHelper userHelper) {
+		return jobRepository.getUserJobs(userHelper.getId());
 	}
 
 }

@@ -14,6 +14,7 @@ public class BusinessDTO {
 	private Date startTime;
 	private Date endTime;
 	private Date date;
+	private Long userId;
 
 	public BusinessDTO() {
 
@@ -111,6 +112,16 @@ public class BusinessDTO {
 
 	public void setBusinessId(Long businessId) {
 		this.businessId = businessId;
+	}
+	
+	
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	@Override

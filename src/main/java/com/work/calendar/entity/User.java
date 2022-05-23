@@ -3,6 +3,7 @@ package com.work.calendar.entity;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,23 +21,26 @@ public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	@Column(name = "user_id")
+	@Column(name = "id")
 	private Long id;
 
 	private String fullName;
 	private String email;
 	private String password;
 
-//	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id" , referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
 	private List<Client> clients;
 
-//	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id" , referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
 	private List<Job> jobs;
 
-//	@JoinColumn(name = "id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id" , referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
 	private List<Business> businessList;
 
 	public User() {

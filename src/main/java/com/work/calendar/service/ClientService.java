@@ -5,12 +5,14 @@ import java.util.List;
 
 import javax.security.auth.login.AccountNotFoundException;
 
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.dto.ClientDTO;
 import com.work.calendar.entity.Client;
 import com.work.calendar.repository.ClientRepository;
@@ -21,15 +23,18 @@ public class ClientService extends CrudService<Client> {
 	private Logger log = LoggerFactory.getLogger(ClientService.class);
 	@Autowired
 	private ClientRepository clientRepository;
-
-	public Client addClient(ClientDTO clientDTO) {
+	@Autowired
+	private UserService userService;
+	
+	public Client addClient(UserHelper userHelper , ClientDTO clientDTO) throws NotFound {
 		Client client = new Client(clientDTO.getFullName(), new Date(), clientDTO.getColor());
+		client.setUserId(userHelper.getId());
 		clientRepository.save(client);
 		return client;
 
 	}
 
-	public void deleteClient(Long id) {
+	public void deleteClient(UserHelper userHelper , Long id) {
 		try {
 			clientRepository.deleteById(id);
 		} catch (Exception e) {
@@ -42,8 +47,8 @@ public class ClientService extends CrudService<Client> {
 		return clientRepository.findAll();
 	}
 
-	public Client getClientById(Long id) throws AccountNotFoundException {
-		if (clientRepository.findById(id).get() != null) {
+	public Client getClientById(UserHelper userHelper , Long id) throws AccountNotFoundException {
+		if (clientRepository.findById(id).isPresent()) {
 			return clientRepository.findById(id).get();
 		} else {
 			throw new AccountNotFoundException("no client account with the id " + id);
@@ -60,12 +65,16 @@ public class ClientService extends CrudService<Client> {
 		return !entity.getFullName().trim().isEmpty() ? true : false;
 	}
 
-	public Client updateClient(Client client) {
+	public Client updateClient(UserHelper userHelper ,Client client) {
 		if(validateEntity(client)) {
 			return clientRepository.save(client);
 		}
 		log.info("error validating client");
 		return null;
 		
+	}
+
+	public List<Client> getClientsByUser(UserHelper userHelper) {
+		return clientRepository.getUserClients(userHelper.getId());
 	}
 }

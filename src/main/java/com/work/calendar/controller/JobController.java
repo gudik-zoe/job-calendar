@@ -2,6 +2,8 @@ package com.work.calendar.controller;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.work.calendar.aspect.UserHelper;
+import com.work.calendar.aspect.WorkCalendarAPI;
 import com.work.calendar.entity.Job;
 import com.work.calendar.service.JobService;
 
@@ -33,10 +37,21 @@ public class JobController {
 	@Autowired
 	private JobService jobTypeService;
 
+//	@GetMapping("/")
+//	public ResponseEntity<?> getJob() {
+//		try {
+//			return ResponseEntity.ok().body(jobTypeService.getJobTypes());
+//		} catch (Exception e) {
+//			log.error("EXCEPTION on getJob: ", e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
+//		}
+//	}
+	
 	@GetMapping("/")
-	public ResponseEntity<?> getJob() {
+	@WorkCalendarAPI
+	public ResponseEntity<?> getJob(HttpServletRequest request, UserHelper userHelper) {
 		try {
-			return ResponseEntity.ok().body(jobTypeService.getJobTypes());
+			return ResponseEntity.ok().body(jobTypeService.getJobsForUser(userHelper));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getJob: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -44,7 +59,8 @@ public class JobController {
 	}
 
 	@PutMapping("/")
-	public ResponseEntity<?> editJob(@RequestBody Job newJob) {
+	@WorkCalendarAPI
+	public ResponseEntity<?> editJob(HttpServletRequest request, UserHelper userHelper,@RequestBody Job newJob) {
 		try {
 			return ResponseEntity.ok().body(jobTypeService.editJob(newJob));
 		} catch (Exception e) {
@@ -53,11 +69,12 @@ public class JobController {
 		}
 	}
 
-	@PostMapping()
-	public ResponseEntity<?> addJob(@RequestBody Job theJobType) {
+	@PostMapping("/")
+	@WorkCalendarAPI
+	public ResponseEntity<?> addJob(HttpServletRequest request, UserHelper userHelper,@RequestBody Job job) {
 		try {
-			theJobType.setTimeStamp(new Date());
-			Job jobType = jobTypeService.addJobType(theJobType);
+			job.setTimeStamp(new Date());
+			Job jobType = jobTypeService.addJobType(userHelper ,job);
 			return ResponseEntity.ok().body(jobType);
 		} catch (Exception e) {
 			log.error("EXCEPTION on addJob: ", e);
@@ -66,10 +83,10 @@ public class JobController {
 	}
 
 	@DeleteMapping("/{id}")
+	@WorkCalendarAPI
 	public ResponseEntity<?> deleteJob(@PathVariable Long id) {
 
 		try {
-			log.info("this is enter the delete job controller " + id);
 			jobTypeService.deleteJob(id);
 			return ResponseEntity.ok(null);
 		} catch (DataIntegrityViolationException e) {

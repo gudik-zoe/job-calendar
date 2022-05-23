@@ -1,5 +1,7 @@
 package com.work.calendar.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.work.calendar.aspect.UserHelper;
+import com.work.calendar.aspect.WorkCalendarAPI;
 import com.work.calendar.dto.ClientDTO;
 import com.work.calendar.entity.Client;
 import com.work.calendar.service.ClientService;
 
 @RestController
 @RequestMapping("client")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ClientController {
 
 	private Logger log = LoggerFactory.getLogger(ClientController.class);
@@ -29,29 +32,42 @@ public class ClientController {
 	@Autowired
 	private ClientService clientService;
 
-	@GetMapping("/")
-	public ResponseEntity<?> getClients() {
+//	@GetMapping("/")
+//	public ResponseEntity<?> getClients() {
+//		try {
+//			return ResponseEntity.ok().body(clientService.getClients());
+//		} catch (Exception e) {
+//			log.error("EXCEPTION on getClients: ", e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
+//		}
+//	}
+	
+	@GetMapping("/{id}")
+	@WorkCalendarAPI
+	public ResponseEntity<?> getClientById(HttpServletRequest request, UserHelper userHelper,@PathVariable Long id) {
 		try {
-			return ResponseEntity.ok().body(clientService.getClients());
+			return ResponseEntity.ok().body(clientService.getClientById(userHelper ,id));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClients: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
 		}
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<?> getClientById(@PathVariable Long id) {
+	@GetMapping("/")
+	@WorkCalendarAPI
+	public ResponseEntity<?> getClientsByUser(HttpServletRequest request, UserHelper userHelper) {
 		try {
-			return ResponseEntity.ok().body(clientService.getClientById(id));
+			return ResponseEntity.ok().body(clientService.getClientsByUser(userHelper));
 		} catch (Exception e) {
-			log.error("EXCEPTION on getClients: ", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
+			log.error("EXCEPTION on getClientsByUser: ", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured in getClientsByUser"));
 		}
 	}
 	@PutMapping("/")
-	public ResponseEntity<?> updateClient(@RequestBody Client clientDTO) {
+	@WorkCalendarAPI
+	public ResponseEntity<?> updateClient(HttpServletRequest request, UserHelper userHelper,@RequestBody Client clientDTO) {
 		try {
-			return ResponseEntity.ok().body(clientService.updateClient(clientDTO));
+			return ResponseEntity.ok().body(clientService.updateClient(userHelper ,clientDTO));
 		} catch (Exception e) {
 			log.error("EXCEPTION on updateClient: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));
@@ -60,9 +76,10 @@ public class ClientController {
 
 
 	@PostMapping("/")
-	public ResponseEntity<?> addClient(@RequestBody ClientDTO clientDTO) {
+	@WorkCalendarAPI
+	public ResponseEntity<?> addClient(HttpServletRequest request, UserHelper userHelper,@RequestBody ClientDTO clientDTO) {
 		try {
-			Client client = clientService.addClient(clientDTO);
+			Client client = clientService.addClient(userHelper ,clientDTO);
 			return ResponseEntity.ok().body(client);
 		} catch (Exception e) {
 			log.error("EXCEPTION on getClients: ", e);
@@ -71,10 +88,11 @@ public class ClientController {
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteClient(@PathVariable Long id) {
+	@WorkCalendarAPI
+	public void deleteClient(HttpServletRequest request, UserHelper userHelper,@PathVariable Long id) {
 		try {
 			System.out.println("in controller " + id);
-			clientService.deleteClient(id);
+			clientService.deleteClient(userHelper ,id);
 		} catch (Exception e) {
 			log.error("EXCEPTION on deleteClient: ", e);
 		}
