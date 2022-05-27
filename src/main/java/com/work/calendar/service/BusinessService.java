@@ -80,8 +80,8 @@ public class BusinessService extends CrudService<Business> {
 
 	public BusinessDTO addEntity(UserHelper userHelper ,BusinessDTO businessDTO) throws Exception {
 		Business business = new Business();
-		Client theClient = clientService.getClientById(userHelper ,businessDTO.getClientId());
-		Job theJob = jobService.getJobById(businessDTO.getJobId());
+		Client theClient = clientService.getClientByIdAndCheckAvailability(userHelper ,businessDTO.getClientId());
+		Job theJob = jobService.getJobByIdAndCheckAvailability(userHelper ,businessDTO.getJobId());
 		business.setClient(theClient);
 		business.setJobtype(theJob);
 		business.setTotalHours(getTimedifference(businessDTO.getEndTime(), businessDTO.getStartTime()));

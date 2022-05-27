@@ -47,9 +47,9 @@ public class BusinessController {
 
 	@PostMapping("/")
 	@WorkCalendarAPI
-	public ResponseEntity<?> addBusiness(HttpServletRequest request, UserHelper userHelper ,@RequestBody BusinessDTO clientJobDTO) {
+	public ResponseEntity<?> addBusiness(HttpServletRequest request, UserHelper userHelper ,@RequestBody BusinessDTO businessDTO) {
 		try {
-			return ResponseEntity.ok().body(businessService.addEntity(userHelper ,clientJobDTO));
+			return ResponseEntity.ok().body(businessService.addEntity(userHelper ,businessDTO));
 		} catch (Exception e) {
 			log.error("EXCEPTION on addBusiness: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error("an unknown error occured"));

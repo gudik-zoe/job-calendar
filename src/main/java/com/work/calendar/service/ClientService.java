@@ -10,11 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.dto.ClientDTO;
 import com.work.calendar.entity.Client;
+import com.work.calendar.exceptions.BadRequestException;
+import com.work.calendar.exceptions.MyPlatformException;
 import com.work.calendar.repository.ClientRepository;
 
 @Service
@@ -76,5 +79,13 @@ public class ClientService extends CrudService<Client> {
 
 	public List<Client> getClientsByUser(UserHelper userHelper) {
 		return clientRepository.getUserClients(userHelper.getId());
+	}
+
+	public Client getClientByIdAndCheckAvailability(UserHelper userHelper, Long clientId) throws AccountNotFoundException {
+		Client client = getClientById(userHelper ,clientId);
+		if(client.getUserId() !=userHelper.getId() ) {
+			throw new MyPlatformException("UNAUTHORIZED , client does not belong to user", HttpStatus.UNAUTHORIZED.value());
+		}
+		return client;
 	}
 }

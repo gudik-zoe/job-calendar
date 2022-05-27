@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2022-05-23T22:15:22+0200",
+    date = "2022-05-26T21:00:01+0200",
     comments = "version: 1.3.0.Final, compiler: Eclipse JDT (IDE) 1.3.1200.v20200916-0645, environment: Java 15.0.2 (Oracle Corporation)"
 )
 @Component
@@ -28,11 +28,11 @@ public class EntityMapperImpl implements EntityMapper {
         businessDTO.setJobDescription( businessJobDescription( business ) );
         businessDTO.setClientId( businessClientId( business ) );
         businessDTO.setClientFullName( businessClientFullName( business ) );
-        businessDTO.setDate( business.getDate() );
-        businessDTO.setEndTime( business.getEndTime() );
         businessDTO.setNote( business.getNote() );
         businessDTO.setPosition( business.getPosition() );
+        businessDTO.setDate( business.getDate() );
         businessDTO.setStartTime( business.getStartTime() );
+        businessDTO.setEndTime( business.getEndTime() );
         businessDTO.setUserId( business.getUserId() );
 
         return businessDTO;

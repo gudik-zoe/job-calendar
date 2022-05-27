@@ -9,11 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.entity.Client;
 import com.work.calendar.entity.Job;
+import com.work.calendar.exceptions.MyPlatformException;
 import com.work.calendar.repository.JobRepository;
 
 @Service
@@ -76,6 +78,14 @@ public class JobService extends CrudService<Job> {
 
 	public List<Job> getJobsForUser(UserHelper userHelper) {
 		return jobRepository.getUserJobs(userHelper.getId());
+	}
+
+	public Job getJobByIdAndCheckAvailability(UserHelper userHelper,Long jobId) throws AccountNotFoundException {
+		Job job = getJobById(jobId);
+		if(job.getUserId() != userHelper.getId() ) {
+			throw new MyPlatformException("UNAUTHORIZED , client does not belong to user", HttpStatus.UNAUTHORIZED.value());
+		}
+		return job;
 	}
 
 }
