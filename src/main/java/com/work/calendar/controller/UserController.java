@@ -1,5 +1,7 @@
 package com.work.calendar.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.work.calendar.aspect.UserHelper;
+import com.work.calendar.aspect.WorkCalendarAPI;
 import com.work.calendar.dto.LoginDto;
 import com.work.calendar.entity.User;
 import com.work.calendar.service.UserService;
@@ -24,10 +28,11 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@GetMapping("/{id}")
-	public ResponseEntity<?> getUserById(@PathVariable Long id) {
+	@GetMapping("/userData")
+	@WorkCalendarAPI
+	public ResponseEntity<?> getUserData(HttpServletRequest request, UserHelper userHelper) {
 		try {
-			return ResponseEntity.ok().body(userService.getUserById(id));
+			return ResponseEntity.ok().body(userService.getUserById(userHelper.getId()));
 		} catch (Exception e) {
 			log.error("EXCEPTION on getUserById: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
