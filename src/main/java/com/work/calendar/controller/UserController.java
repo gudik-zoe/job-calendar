@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.work.calendar.aspect.UserHelper;
 import com.work.calendar.aspect.WorkCalendarAPI;
 import com.work.calendar.dto.LoginDto;
+import com.work.calendar.dto.SignUpDto;
 import com.work.calendar.entity.User;
 import com.work.calendar.service.UserService;
 
@@ -41,9 +42,9 @@ public class UserController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<?> addUser(@RequestBody User user) {
+	public ResponseEntity<?> addUser(@RequestBody SignUpDto signUpDto) {
 		try {
-			return ResponseEntity.ok().body(userService.addUser(user));
+			return ResponseEntity.ok().body(userService.addUser(signUpDto));
 		} catch (Exception e) {
 			log.error("EXCEPTION on addUser: ", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

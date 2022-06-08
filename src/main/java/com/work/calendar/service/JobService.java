@@ -8,6 +8,7 @@ import javax.security.auth.login.AccountNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,9 @@ public class JobService extends CrudService<Job> {
 
 	}
 
+	@Cacheable(cacheNames="jobs" , key = "#userHelper.id")
 	public List<Job> getJobsForUser(UserHelper userHelper) {
+ 		log.info("passing in get jobs for user");
 		return jobRepository.getUserJobs(userHelper.getId());
 	}
 
