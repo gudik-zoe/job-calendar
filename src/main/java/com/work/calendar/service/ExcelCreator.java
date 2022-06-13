@@ -21,6 +21,8 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamSource;
 
 import com.work.calendar.dto.Base64DTO;
 import com.work.calendar.dto.ClientBusinessSummaryDTO;
@@ -77,6 +79,7 @@ public class ExcelCreator {
 	public void writeHeaderLine() throws ParseException {
 		sheet = workbook.createSheet("summary");
 		Row firstRow = sheet.createRow(0);
+		
 
 		createCell(firstRow, 18, calendar.getDisplayName(calendar.MONTH, calendar.LONG, Locale.getDefault()),
 				ExcelStyle.headerStyle(workbook));
@@ -155,14 +158,16 @@ public class ExcelCreator {
 
 	}
 
-	public ByteArrayOutputStream export() throws IOException, ParseException {
+	public InputStreamSource export() throws IOException, ParseException {
 		writeHeaderLine();
 		writeDataLines();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		workbook.write(bos);
 		bos.close();
 		workbook.close();
-		return bos;
+		 InputStreamSource attachment = new ByteArrayResource(bos.toByteArray());
+	       return attachment;
+//		return bos;
 	}
 
 	public Base64DTO exportToBase64(String fileName) throws IOException, ParseException {

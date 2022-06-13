@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import javax.mail.MessagingException;
 import javax.security.auth.login.AccountNotFoundException;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -56,7 +57,9 @@ public class BusinessService extends CrudService<Business> {
 	@Autowired
 	private JobService jobService;
 	@Autowired
-	EntityMapper businessDTOMapper;
+	private EntityMapper businessDTOMapper;
+	@Autowired
+	private EmailSender emailSender;
 //	@Value("#{${monthsList}}")
 //	private List<String> monthsList
 	@Value("${dateformat:yyyy-MM-dd hh:mm:ss}")
@@ -135,10 +138,11 @@ public class BusinessService extends CrudService<Business> {
 	}
 
 	public Base64DTO getBusinessSummary(UserHelper userHelper , Long clientId, Long jobId, String startDate, String endDate,
-			String date, String month) throws IOException, ParseException {
+			String date, String month) throws IOException, ParseException, MessagingException {
 		BusinessFilterDTO clientJobFilterDTO = buildclientJobFilterDTO(userHelper, clientId, jobId, startDate, endDate, date,
 				month);
 		List<Business> businesRecords = businessRepository.findAll(buildSpecificationByClientJob(clientJobFilterDTO));
+		log.info("!!businesRecords size " + businesRecords.size());
 		List<Client> relatedClients = new ArrayList<>();
 		BusinessSummaryDTO businessSummaryDTO = new BusinessSummaryDTO();
 		List<ClientBusinessSummaryDTO> businessSummaries = new ArrayList<>();
@@ -185,7 +189,8 @@ public class BusinessService extends CrudService<Business> {
 			if (!CollectionUtils.isEmpty(businessSummaries)) {
 				ExcelCreator excelCreator = new ExcelCreator(businessSummaryDTO.getClientBusinessSummaryDTO(),
 						clientJobFilterDTO.getCalendar());
-				return excelCreator.exportToBase64("summaryFile");
+				emailSender.sendEmailWithAttachment("tony_khoury993@hotmail.com", "summaryFile", "ecco il tuo file richiesto", excelCreator.export());
+				return null;
 			}
 //			return null;// return businessSummaryDTO;
 
